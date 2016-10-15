@@ -1,16 +1,7 @@
-import ParticleEmitter from './emitter.js'
+import {ParticleEmitter} from './emitter.js'
 
-class Trail extends ParticleEmitter  {
-
-    constructor(
-        particleSystem,
-        maxParticles,
-        parameters,
-        opt_texture,
-        opt_perParticleParamSetter,
-        opt_clock) {
-
-        super(particleSystem, opt_texture, opt_clock);
+function Trail (particleSystem, maxParticles, parameters, opt_texture, opt_perParticleParamSetter, opt_clock)  {
+    ParticleEmitter.call(this,particleSystem, opt_texture, opt_clock)
 
         this.allocateParticles_(maxParticles,parameters);
         this.validateParameters(parameters);
@@ -22,7 +13,11 @@ class Trail extends ParticleEmitter  {
 
     }
 
-    birthParticles (position) {
+Trail.prototype = Object.create( ParticleEmitter.prototype );
+
+Trail.prototype.constructor = Trail
+
+Trail.prototype.birthParticles = function (position) {
 
         var numParticles = this.parameters.numParticles;
         this.parameters.startTime = this.timeSource_();
@@ -50,6 +45,4 @@ class Trail extends ParticleEmitter  {
 
     }
 
-}
-
-export default Trail
+export {Trail}

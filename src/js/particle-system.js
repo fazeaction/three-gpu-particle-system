@@ -1,12 +1,8 @@
-import ParticleSpec from './particle-spec'
-import ParticleEmitter from './emitter'
+import {createDefaultClock_} from './constants.js'
+import {ParticleEmitter} from './emitter'
+import {Trail} from './trail'
 
-class ParticleSystem {
-
-    constructor(opt_clock, opt_randomFunction) {
-
-
-
+function ParticleSystem (opt_clock, opt_randomFunction) {
 
 
         // Entities which can be drawn -- emitters or OneShots
@@ -29,7 +25,7 @@ class ParticleSystem {
         if (opt_clock) {
             this.timeSource_ = opt_clock;
         } else {
-            this.timeSource_ = ParticleSpec.createDefaultClock_(this);
+            this.timeSource_ = createDefaultClock_(this);
         }
 
         this.randomFunction_ = opt_randomFunction || function() {
@@ -40,7 +36,7 @@ class ParticleSystem {
         this.defaultRampTexture = rampTexture;
     }
 
-    createTextureFromFloats (width, height, pixels, opt_texture) {
+ParticleSystem.prototype.createTextureFromFloats = function (width, height, pixels, opt_texture) {
         var texture = null;
         if (opt_texture != null) {
             texture = opt_texture;
@@ -63,13 +59,13 @@ class ParticleSystem {
         return texture;
     }
 
-    createParticleEmitter (opt_texture, opt_clock) {
+ParticleSystem.prototype.createParticleEmitter = function (opt_texture, opt_clock) {
         var emitter = new ParticleEmitter(this, opt_texture, opt_clock);
         this.drawables_.push(emitter);
         return emitter;
     }
 
-    createTrail (maxParticles,parameters,opt_texture,opt_perParticleParamSetter,opt_clock) {
+ParticleSystem.prototype.createTrail = function (maxParticles,parameters,opt_texture,opt_perParticleParamSetter,opt_clock) {
 
         var trail = new Trail(
             this,
@@ -82,15 +78,13 @@ class ParticleSystem {
         return trail;
     }
 
-    draw (viewProjection, world, viewInverse) {
+ParticleSystem.prototype.draw = function (viewProjection, world, viewInverse) {
         // Update notion of current time
         this.now_ = new Date();
 
         for (var ii = 0; ii < this.drawables_.length; ++ii) {
             this.drawables_[ii].draw(world, viewProjection, 0);
         }
-    };
+    }
 
-}
-
-export default ParticleSystem
+export {ParticleSystem}

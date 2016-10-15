@@ -1,69 +1,7 @@
-/*export *  from './js/constants.js';
-export {ParticleSpec}  from './js/particle-spec.js';
-export {ParticleSystem}  from './js/particle-system.js';
-export {ParticleEmitter}  from './js/emitter.js';
-export {Trail}  from './js/trail.js';
-export {OneShot}  from './js/one-shot.js';*/
-
-
-import './js/constants.js';
-import {ParticleSpec}  from './js/particle-spec.js';
-import {ParticleSystem}  from './js/particle-system.js';
-import {ParticleEmitter}  from './js/emitter.js';
-import {Trail}  from './js/trail.js';
-import {OneShot}  from './js/one-shot.js';
-
-var container, stats;
-
-var camera, scene, renderer;
-
-var emitter,particleSystem;
-var g_poofs = [], g_poofIndex = 0,MAX_POOFS = 3;//3;
-var g_trail, g_trailParameters;
-var g_keyDown=[];
+import {ParticleSystem} from './../../../build/three-gpu-particle-system.js'
 
 init();
 animate();
-
-function getEventKeyChar (event) {
-    if (!event) {
-        event = window.event;
-    }
-    var charCode = 0;
-    if (event.keyIdentifierToChar)
-        charCode = o3djs.event.keyIdentifierToChar(event.keyIdentifier);
-    if (!charCode)
-        charCode = (window.event) ? window.event.keyCode : event.charCode;
-    if (!charCode)
-        charCode = event.keyCode;
-    return charCode;
-};
-
-function onKeyPress(event) {
-    event = event || window.event;
-    var keyChar = String.fromCharCode(getEventKeyChar(event));
-    // Just in case they have capslock on.
-    keyChar = keyChar.toLowerCase();
-
-    switch (keyChar) {
-        case 'p':
-            triggerPoof();
-            break;
-        /*case 't':
-         leaveTrail();
-         break;*/
-    }
-}
-
-function onKeyDown(event) {
-    event = event || window.event;
-    g_keyDown[event.keyCode] = true;
-}
-
-function onKeyUp(event) {
-    event = event || window.event;
-    g_keyDown[event.keyCode] = false;
-}
 
 function init() {
 
@@ -93,17 +31,17 @@ function init() {
     //scene.add(new THREE.Mesh(new THREE.SphereGeometry(2,32,32),new THREE.MeshBasicMaterial({color:0x231232})))
     particleSystem = new ParticleSystem();
     setupFlame(particleSystem);
-    setupNaturalGasFlame(particleSystem);
-    setupSmoke(particleSystem);
-    setupWhiteEnergy(particleSystem);
-    setupRipples(particleSystem);
-    setupText(particleSystem);
-    setupRain(particleSystem);
-    setupAnim(particleSystem);
-    setupBall(particleSystem);
-    setupCube(particleSystem);
-    setupPoof(particleSystem);
-    setupTrail(particleSystem);
+    //setupNaturalGasFlame(particleSystem);
+    //setupSmoke(particleSystem);
+    //setupWhiteEnergy(particleSystem);
+    //setupRipples(particleSystem);
+   //setupText(particleSystem);
+   //setupRain(particleSystem);
+   //setupAnim(particleSystem);
+   //setupBall(particleSystem);
+   //setupCube(particleSystem);
+   //setupPoof(particleSystem);
+   //setupTrail(particleSystem);
 
 
 
@@ -136,7 +74,6 @@ function setupFlame(particleSystem) {
     var emitter = particleSystem.createParticleEmitter();
     emitter.setTranslation(0, 0, 0);
     emitter.setState(THREE.AdditiveBlending);
-    console.log(emitter)
     emitter.setColorRamp(
         [1, 1, 0, 1,
             1, 0, 0, 1,
@@ -153,7 +90,6 @@ function setupFlame(particleSystem) {
         worldAcceleration: [0, -0.20, 0],
         spinSpeedRange: 4});
     //scene.add(emitter.mesh);
-    emitter.material.uniforms.viewInverse.value=camera.matrixWorld;
     scene.add(emitter);
 
 }
@@ -176,9 +112,7 @@ function setupNaturalGasFlame(particleSystem) {
         velocity:[0, 0.60, 0],
         worldAcceleration: [0, -0.20, 0],
         spinSpeedRange: 4});
-    //scene.add(emitter.mesh);ç
-    emitter.material.uniforms.viewInverse.value=camera.matrixWorld;
-
+    //scene.add(emitter.mesh);
     scene.add(emitter);
 }
 
@@ -198,9 +132,7 @@ function setupSmoke(particleSystem) {
         velocity: [0, 2, 0], velocityRange: [0.2, 0, 0.2],
         worldAcceleration: [0, -0.25, 0],
         spinSpeedRange: 4});
-    //scene.add(emitter.mesh);ç
-    emitter.material.uniforms.viewInverse.value=camera.matrixWorld;
-
+    //scene.add(emitter.mesh);
     scene.add(emitter);
 }
 
@@ -220,8 +152,6 @@ function setupWhiteEnergy(particleSystem) {
         positionRange: [1, 0, 1],
         velocityRange: [0.20, 0, 0.20]});
     //scene.add(emitter.mesh);
-    emitter.material.uniforms.viewInverse.value=camera.matrixWorld;
-
     scene.add(emitter);
 }
 
@@ -297,8 +227,6 @@ function setupText(particleSystem) {
             parameters.position[1] = positions[index][1];
         });
     //scene.add(emitter.mesh);
-    emitter.material.uniforms.viewInverse.value=camera.matrixWorld;
-
     scene.add(emitter);
 }
 
@@ -317,8 +245,6 @@ function setupRain(particleSystem) {
         positionRange: [1, 0, 1],
         velocity: [0,-1.5,0]});
     //scene.add(emitter.mesh);
-    emitter.material.uniforms.viewInverse.value=camera.matrixWorld;
-
     scene.add(emitter);
 }
 
@@ -343,8 +269,6 @@ function setupAnim(particleSystem) {
         acceleration: [0, -1.5, 0],
         spinSpeedRange: 1});
     //scene.add(emitter.mesh);
-    emitter.material.uniforms.viewInverse.value=camera.matrixWorld;
-
     scene.add(emitter);
 }
 
@@ -381,7 +305,6 @@ function setupBall(particleSystem) {
             parameters.orientation = [q.x, q.y, q.z, q.w];
         });
     //scene.add(emitter.mesh);
-
     scene.add(emitter);
 }
 

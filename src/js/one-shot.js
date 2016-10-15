@@ -1,11 +1,6 @@
-import THREE from 'three'
+function OneShot (emitter) {
 
-class OneShot extends THREE.Mesh  {
-
-    constructor( emitter ) {
-
-        super();
-
+        THREE.Mesh.call( this );
         this.emitter_ = emitter.clone();
 
         this.world_ = new THREE.Matrix4();
@@ -25,7 +20,12 @@ class OneShot extends THREE.Mesh  {
 
     }
 
-    trigger (opt_world) {
+OneShot.prototype = Object.create( THREE.Mesh.prototype );
+
+OneShot.prototype.constructor = OneShot
+
+
+OneShot.prototype.trigger = function (opt_world) {
         //if(!this.visible_) scene.add(this.emitter_.mesh);
         if(!this.visible_) {
 
@@ -39,13 +39,11 @@ class OneShot extends THREE.Mesh  {
         this.timeOffset_ = this.emitter_.timeSource_();
     }
 
-    draw (world, viewProjection, timeOffset) {
+OneShot.prototype.draw = function (world, viewProjection, timeOffset) {
         if (this.visible_) {
             //this.tempWorld_.multiplyMatrices(this.world_, world);
             this.emitter_.draw(this.world_, viewProjection, this.timeOffset_);
         }
     }
 
-}
-
-export default OneShot
+export {OneShot}

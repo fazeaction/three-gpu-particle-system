@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three particle system</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            color: #cccccc;
+            font-family: Monospace;
+            font-size: 13px;
+            text-align: center;
+
+            background-color: black;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        #info {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            padding: 5px;
+        }
+
+        a {
+
+            color: #0080ff;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="container"></div>
+<div id="info"><a href="https://www.khronos.org/registry/webgl/sdk/demos/google/particles/" target="_blank">tribute to o3d particle engine</a></div>
+
+<script src="node_modules/three/build/three.min.js"></script>
+
+<script src="node_modules/three/examples/js/Detector.js"></script>
+<script src="node_modules/three/examples/js/libs/stats.min.js"></script>
+
+<script src="build/three-gpu-particle-system.js"></script>
+
+</body>
+</html>
