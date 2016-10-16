@@ -38,7 +38,7 @@ Trail.prototype.birthParticles = function (position) {
             this.parameters,
             this.perParticleParamSetter);
         if(this.birthIndex_===0) {
-            scene.add(this);
+            this.particleSystem.scene.add(this);
         }
         this.birthIndex_ += numParticles;
 

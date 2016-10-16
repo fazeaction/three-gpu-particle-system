@@ -2,9 +2,10 @@ import {createDefaultClock_} from './constants.js'
 import {ParticleEmitter} from './emitter'
 import {Trail} from './trail'
 
-function ParticleSystem (opt_clock, opt_randomFunction) {
+function ParticleSystem (scene, camera , opt_clock, opt_randomFunction) {
 
-
+        this.scene=scene;
+        this.camera=camera;
         // Entities which can be drawn -- emitters or OneShots
         this.drawables_ = [];
 

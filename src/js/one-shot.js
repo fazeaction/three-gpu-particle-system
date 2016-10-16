@@ -1,7 +1,8 @@
-function OneShot (emitter) {
+function OneShot (emitter,scene) {
 
         THREE.Mesh.call( this );
         this.emitter_ = emitter.clone();
+        this.scene = scene;
 
         this.world_ = new THREE.Matrix4();
         this.tempWorld_ = new THREE.Matrix4();
@@ -26,10 +27,9 @@ OneShot.prototype.constructor = OneShot
 
 
 OneShot.prototype.trigger = function (opt_world) {
-        //if(!this.visible_) scene.add(this.emitter_.mesh);
         if(!this.visible_) {
 
-            scene.add(this.emitter_);
+            this.scene.add(this.emitter_);
 
         }
         if (opt_world) {
