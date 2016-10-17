@@ -1,4 +1,5 @@
 import  nodeResolve from 'rollup-plugin-node-resolve';
+import serve from 'rollup-plugin-serve';
 
 function glsl () {
     return {
@@ -21,6 +22,9 @@ export default {
     dest: './build/bundle.js',
     plugins: [
         nodeResolve(),
-        glsl()
+        glsl(),
+        serve({
+            port:8080
+        })
     ]
 };

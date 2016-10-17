@@ -23,9 +23,9 @@
             padding: 5px;
         }
 
-        a {
+        a,a:visited,p {
 
-            color: #0080ff;
+            color: #ffffff;
         }
 
     </style>
@@ -33,7 +33,10 @@
 <body>
 
 <div id="container"></div>
-<div id="info"><a href="https://www.khronos.org/registry/webgl/sdk/demos/google/particles/" target="_blank">tribute to o3d particle engine</a></div>
+<div id="info">
+    <a href="https://www.khronos.org/registry/webgl/sdk/demos/google/particles/" target="_blank">tribute to o3d particle engine</a>
+    <p>Press 'P' to make a poof. - Hold 'T' to make a trail.</p>
+</div>
 
 <script src="node_modules/three/build/three.min.js"></script>
 <script src="node_modules/three/examples/js/Detector.js"></script>
