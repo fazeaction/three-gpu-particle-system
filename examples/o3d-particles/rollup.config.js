@@ -1,21 +1,26 @@
-import babel from 'rollup-plugin-babel';
-import  commonjs from 'rollup-plugin-commonjs';
 import  nodeResolve from 'rollup-plugin-node-resolve';
+
+function glsl () {
+    return {
+        transform ( code, id ) {
+            if ( !/\.glsl$/.test( id ) ) return;
+
+            return 'export default ' + JSON.stringify(
+                    code
+                        .replace( /[ \t]*\/\/.*\n/g, '' )
+                        .replace( /[ \t]*\/\*[\s\S]*?\*\//g, '' )
+                        .replace( /\n{2,}/g, '\n' )
+                ) + ';';
+        }
+    };
+}
+
 
 export default {
     entry: './js/main.js',
     dest: './build/bundle.js',
     plugins: [
-        babel({ exclude: ['./../../build/three-gpu-particle-system.js']}),
-        nodeResolve({
-            jsnext: true,
-            main: true,
-            preferBuiltins: true
-        }),
-        commonjs({
-            namedExports: {
-                './../../build/three-gpu-particle-system.js': ['THREE_GPU_ParticleSystem']
-            }
-        })
+        nodeResolve(),
+        glsl()
     ]
 };

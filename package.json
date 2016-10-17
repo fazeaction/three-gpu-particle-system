@@ -2,7 +2,7 @@
   "name": "three-gpu-particle-system",
   "version": "1.0.0",
   "description": "GPU based particle system for three.js. Heavily based on tdl library (https://github.com/greggman/tdl)",
-  "main": "build/three-gpu-particle-system.min.js",
+  "main": "src/main.js",
   "scripts": {
     "build": "rollup -c",
     "build-uglify": "rollup -c && uglifyjs build/three-gpu-particle-system.js -cm > build/three-gpu-particle-system.min.js",
