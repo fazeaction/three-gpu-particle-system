@@ -16,10 +16,10 @@ function glsl () {
 export default {
     entry: 'src/main.js',
     dest: 'build/three-gpu-particle-system.js',
-    moduleName: 'THREE-GPU-ParticleSystem',
+    moduleName: 'THREE_GPU_ParticleSystem',
     globals: { 'three': 'three' },
     format: 'umd',
     plugins: [
-        glsl(),
+        glsl()
     ]
 };

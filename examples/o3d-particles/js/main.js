@@ -1,7 +1,55 @@
-import {ParticleSystem} from './../../../build/three-gpu-particle-system.js'
+var container, stats;
+
+var camera, scene, renderer;
+
+var emitter,particleSystem;
+var g_poofs = [], g_poofIndex = 0,MAX_POOFS = 3;//3;
+var g_trail, g_trailParameters;
+var g_keyDown=[];
 
 init();
 animate();
+
+function getEventKeyChar (event) {
+    if (!event) {
+        event = window.event;
+    }
+    var charCode = 0;
+    if (event.keyIdentifierToChar)
+        charCode = o3djs.event.keyIdentifierToChar(event.keyIdentifier);
+    if (!charCode)
+        charCode = (window.event) ? window.event.keyCode : event.charCode;
+    if (!charCode)
+        charCode = event.keyCode;
+    return charCode;
+};
+
+function onKeyPress(event) {
+    event = event || window.event;
+    var keyChar = String.fromCharCode(getEventKeyChar(event));
+    // Just in case they have capslock on.
+    keyChar = keyChar.toLowerCase();
+
+    switch (keyChar) {
+        case 'p':
+            triggerPoof();
+            break;
+        /*case 't':
+         leaveTrail();
+         break;*/
+    }
+}
+
+function onKeyDown(event) {
+    event = event || window.event;
+    g_keyDown[event.keyCode] = true;
+}
+
+function onKeyUp(event) {
+    event = event || window.event;
+    g_keyDown[event.keyCode] = false;
+}
+
 
 function init() {
 
@@ -29,19 +77,19 @@ function init() {
 
     //
     //scene.add(new THREE.Mesh(new THREE.SphereGeometry(2,32,32),new THREE.MeshBasicMaterial({color:0x231232})))
-    particleSystem = new ParticleSystem();
+    particleSystem = new THREE_GPU_ParticleSystem.ParticleSystem(scene,camera);
     setupFlame(particleSystem);
-    //setupNaturalGasFlame(particleSystem);
-    //setupSmoke(particleSystem);
-    //setupWhiteEnergy(particleSystem);
-    //setupRipples(particleSystem);
-   //setupText(particleSystem);
-   //setupRain(particleSystem);
-   //setupAnim(particleSystem);
-   //setupBall(particleSystem);
-   //setupCube(particleSystem);
-   //setupPoof(particleSystem);
-   //setupTrail(particleSystem);
+    setupNaturalGasFlame(particleSystem);
+    setupSmoke(particleSystem);
+    setupWhiteEnergy(particleSystem);
+    setupRipples(particleSystem);
+    setupText(particleSystem);
+    setupRain(particleSystem);
+    setupAnim(particleSystem);
+    setupBall(particleSystem);
+    setupCube(particleSystem);
+    setupPoof(particleSystem);
+    setupTrail(particleSystem);
 
 
 
