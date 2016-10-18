@@ -1,8 +1,11 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-    typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    (factory((global.THREE_GPU_ParticleSystem = global.THREE_GPU_ParticleSystem || {})));
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.THREE_GPU_ParticleSystem = global.THREE_GPU_ParticleSystem || {})));
 }(this, (function (exports) { 'use strict';
+
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
 
 var CORNERS_ = [
 
@@ -13,16 +16,16 @@ var CORNERS_ = [
 
 ];
 
-function createDefaultClock_( particleSystem ) {
+function createDefaultClock_ ( particleSystem ) {
 
 	return function () {
 
-					var now = particleSystem.now_;
-					var base = particleSystem.timeBase_;
+		var now = particleSystem.now_;
+		var base = particleSystem.timeBase_;
 
-					return ( now.getTime() - base.getTime() ) / 1000.0;
+		return ( now.getTime() - base.getTime() ) / 1000.0;
 
-				}
+	}
 
 }
 
@@ -35,6 +38,9 @@ var ORIENTATION_IDX = 20;
 var COLOR_MULT_IDX = 24;
 var LAST_IDX = 28;
 var singleParticleArray_ = new Float32Array( 4 * LAST_IDX );
+
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
 
 function ParticleSpec () {
 
@@ -98,6 +104,9 @@ function ParticleSpec () {
 
 }
 
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 function OneShot( emitter, scene ) {
 
 	THREE.Mesh.call( this );
@@ -156,11 +165,14 @@ OneShot.prototype.draw = function ( world, viewProjection, timeOffset ) {
 
 };
 
-var billboardParticleInstancedVertexShader = "uniform mat4 world;\r\n        uniform mat4 viewInverse;\r\n        uniform vec3 worldVelocity;\r\n        uniform vec3 worldAcceleration;\r\n        uniform float timeRange;\r\n        uniform float time;\r\n        uniform float timeOffset;\r\n        uniform float frameDuration;\r\n        uniform float numFrames;\r\n\r\n        // Incoming vertex attributes\r\n        attribute vec3 offset;\r\n        attribute vec4 uvLifeTimeFrameStart;\r\n        attribute float startTime;\r\n        attribute vec4 velocityStartSize;\r\n        attribute vec4 accelerationEndSize;\r\n        attribute vec4 spinStartSpinSpeed;\r\n        attribute vec4 colorMult;\r\n\r\n        // Outgoing variables to fragment shader\r\n        varying vec2 outputTexcoord;\r\n        varying float outputPercentLife;\r\n        varying vec4 outputColorMult;\r\n\r\n        void main() {\r\n            float lifeTime = uvLifeTimeFrameStart.z;\r\n            float frameStart = uvLifeTimeFrameStart.w;\r\n            vec3 velocity = (world * vec4(velocityStartSize.xyz,\r\n                                         0.)).xyz + worldVelocity;\r\n            float startSize = velocityStartSize.w;\r\n            vec3 acceleration = (world * vec4(accelerationEndSize.xyz,\r\n                                             0)).xyz + worldAcceleration;\r\n            float endSize = accelerationEndSize.w;\r\n            float spinStart = spinStartSpinSpeed.x;\r\n            float spinSpeed = spinStartSpinSpeed.y;\r\n\r\n            float localTime = mod((time - timeOffset - startTime), timeRange);\r\n            float percentLife = localTime / lifeTime;\r\n\r\n            float frame = mod(floor(localTime / frameDuration + frameStart),\r\n                             numFrames);\r\n            float uOffset = frame / numFrames;\r\n            float u = uOffset + (uv.x + 0.5) * (1. / numFrames);\r\n\r\n            outputTexcoord = vec2(u, uv.y + 0.5);\r\n            outputColorMult = colorMult;\r\n\r\n            vec3 basisX = viewInverse[0].xyz;\r\n            vec3 basisZ = viewInverse[1].xyz;\r\n\r\n            float size = mix(startSize, endSize, percentLife);\r\n            size = (percentLife < 0. || percentLife > 1.) ? 0. : size;\r\n            float s = sin(spinStart + spinSpeed * localTime);\r\n            float c = cos(spinStart + spinSpeed * localTime);\r\n\r\n            vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, -uv.x * s + uv.y * c);\r\n            vec3 localPosition = vec3(basisX * rotatedPoint.x + basisZ * rotatedPoint.y) * size +\r\n                                velocity * localTime +\r\n                                acceleration * localTime * localTime +\r\n                                position;\r\n\r\n            outputPercentLife = percentLife;\r\n            gl_Position = projectionMatrix * viewMatrix * vec4(localPosition + offset + world[3].xyz, 1.);\r\n\r\n        }";
+var billboardParticleInstancedVertexShader = "// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js#L154\r\n\r\nuniform mat4 world;\r\nuniform mat4 viewInverse;\r\nuniform vec3 worldVelocity;\r\nuniform vec3 worldAcceleration;\r\nuniform float timeRange;\r\nuniform float time;\r\nuniform float timeOffset;\r\nuniform float frameDuration;\r\nuniform float numFrames;\r\n\r\n// Incoming vertex attributes\r\nattribute vec3 offset;\r\nattribute vec4 uvLifeTimeFrameStart;\r\nattribute float startTime;\r\nattribute vec4 velocityStartSize;\r\nattribute vec4 accelerationEndSize;\r\nattribute vec4 spinStartSpinSpeed;\r\nattribute vec4 colorMult;\r\n\r\n// Outgoing variables to fragment shader\r\nvarying vec2 outputTexcoord;\r\nvarying float outputPercentLife;\r\nvarying vec4 outputColorMult;\r\n\r\nvoid main() {\r\n    float lifeTime = uvLifeTimeFrameStart.z;\r\n    float frameStart = uvLifeTimeFrameStart.w;\r\n    vec3 velocity = (world * vec4(velocityStartSize.xyz,\r\n                                 0.)).xyz + worldVelocity;\r\n    float startSize = velocityStartSize.w;\r\n    vec3 acceleration = (world * vec4(accelerationEndSize.xyz,\r\n                                     0)).xyz + worldAcceleration;\r\n    float endSize = accelerationEndSize.w;\r\n    float spinStart = spinStartSpinSpeed.x;\r\n    float spinSpeed = spinStartSpinSpeed.y;\r\n\r\n    float localTime = mod((time - timeOffset - startTime), timeRange);\r\n    float percentLife = localTime / lifeTime;\r\n\r\n    float frame = mod(floor(localTime / frameDuration + frameStart),\r\n                     numFrames);\r\n    float uOffset = frame / numFrames;\r\n    float u = uOffset + (uv.x + 0.5) * (1. / numFrames);\r\n\r\n    outputTexcoord = vec2(u, uv.y + 0.5);\r\n    outputColorMult = colorMult;\r\n\r\n    vec3 basisX = viewInverse[0].xyz;\r\n    vec3 basisZ = viewInverse[1].xyz;\r\n\r\n    float size = mix(startSize, endSize, percentLife);\r\n    size = (percentLife < 0. || percentLife > 1.) ? 0. : size;\r\n    float s = sin(spinStart + spinSpeed * localTime);\r\n    float c = cos(spinStart + spinSpeed * localTime);\r\n\r\n    vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, -uv.x * s + uv.y * c);\r\n    vec3 localPosition = vec3(basisX * rotatedPoint.x + basisZ * rotatedPoint.y) * size +\r\n                        velocity * localTime +\r\n                        acceleration * localTime * localTime +\r\n                        position;\r\n\r\n    outputPercentLife = percentLife;\r\n    gl_Position = projectionMatrix * viewMatrix * vec4(localPosition + offset + world[3].xyz, 1.);\r\n\r\n}";
 
-var orientedParticleInstancedVertexShader = "// 3D (oriented) vertex shader\r\n       uniform mat4 worldViewProjection;\r\n       uniform mat4 world;\r\n       uniform vec3 worldVelocity;\r\n       uniform vec3 worldAcceleration;\r\n       uniform float timeRange;\r\n       uniform float time;\r\n       uniform float timeOffset;\r\n       uniform float frameDuration;\r\n       uniform float numFrames;\r\n\r\n      // Incoming vertex attributes\r\n      attribute vec3 offset;\r\n      attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart\r\n      attribute float startTime;    // position.xyz, startTime\r\n      attribute vec4 velocityStartSize;    // velocity.xyz, startSize\r\n      attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize\r\n      attribute vec4 spinStartSpinSpeed;   // spinStart.x, spinSpeed.y\r\n      attribute vec4 orientation;          // orientation quaternion\r\n      attribute vec4 colorMult;            // multiplies color and ramp textures\r\n\r\n       // Outgoing variables to fragment shader\r\n       varying vec2 outputTexcoord;\r\n       varying float outputPercentLife;\r\n       varying vec4 outputColorMult;\r\n      void main() {\r\n        float lifeTime = uvLifeTimeFrameStart.z;\r\n        float frameStart = uvLifeTimeFrameStart.w;\r\n        vec3 velocity = (world * vec4(velocityStartSize.xyz,\r\n                                      0.)).xyz + worldVelocity;\r\n        float startSize = velocityStartSize.w;\r\n        vec3 acceleration = (world * vec4(accelerationEndSize.xyz,\r\n                                          0)).xyz + worldAcceleration;\r\n        float endSize = accelerationEndSize.w;\r\n        float spinStart = spinStartSpinSpeed.x;\r\n        float spinSpeed = spinStartSpinSpeed.y;\r\n\r\n        float localTime = mod((time - timeOffset - startTime), timeRange);\r\n        float percentLife = localTime / lifeTime;\r\n\r\n        float frame = mod(floor(localTime / frameDuration + frameStart),\r\n                          numFrames);\r\n        float uOffset = frame / numFrames;\r\n        float u = uOffset + (uv.x + 0.5) * (1. / numFrames);\r\n\r\n        outputTexcoord = vec2(u, uv.y + 0.5);\r\n        outputColorMult = colorMult;\r\n\r\n        float size = mix(startSize, endSize, percentLife);\r\n        size = (percentLife < 0. || percentLife > 1.) ? 0. : size;\r\n        float s = sin(spinStart + spinSpeed * localTime);\r\n        float c = cos(spinStart + spinSpeed * localTime);\r\n\r\n        vec4 rotatedPoint = vec4((uv.x * c + uv.y * s) * size, 0.,\r\n                                 (uv.x * s - uv.y * c) * size, 1.);\r\n        vec3 center = velocity * localTime +\r\n                      acceleration * localTime * localTime +\r\n                      position +offset;\r\n\r\n        vec4 q2 = orientation + orientation;\r\n        vec4 qx = orientation.xxxw * q2.xyzx;\r\n        vec4 qy = orientation.xyyw * q2.xyzy;\r\n        vec4 qz = orientation.xxzw * q2.xxzz;\r\n\r\n        mat4 localMatrix = mat4(\r\n            (1.0 - qy.y) - qz.z,\r\n            qx.y + qz.w,\r\n            qx.z - qy.w,\r\n            0,\r\n\r\n            qx.y - qz.w,\r\n            (1.0 - qx.x) - qz.z,\r\n            qy.z + qx.w,\r\n            0,\r\n\r\n            qx.z + qy.w,\r\n            qy.z - qx.w,\r\n            (1.0 - qx.x) - qy.y,\r\n            0,\r\n\r\n            center.x, center.y, center.z, 1);\r\n        rotatedPoint = localMatrix * rotatedPoint;\r\n        outputPercentLife = percentLife;\r\n        gl_Position = projectionMatrix * modelViewMatrix * rotatedPoint;\r\n      }";
+var orientedParticleInstancedVertexShader = "// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js#L63\r\n\r\n// 3D (oriented) vertex shader\r\nuniform mat4 worldViewProjection;\r\nuniform mat4 world;\r\nuniform vec3 worldVelocity;\r\nuniform vec3 worldAcceleration;\r\nuniform float timeRange;\r\nuniform float time;\r\nuniform float timeOffset;\r\nuniform float frameDuration;\r\nuniform float numFrames;\r\n\r\n// Incoming vertex attributes\r\nattribute vec3 offset;\r\nattribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart\r\nattribute float startTime;    // position.xyz, startTime\r\nattribute vec4 velocityStartSize;    // velocity.xyz, startSize\r\nattribute vec4 accelerationEndSize;  // acceleration.xyz, endSize\r\nattribute vec4 spinStartSpinSpeed;   // spinStart.x, spinSpeed.y\r\nattribute vec4 orientation;          // orientation quaternion\r\nattribute vec4 colorMult;            // multiplies color and ramp textures\r\n\r\n// Outgoing variables to fragment shader\r\nvarying vec2 outputTexcoord;\r\nvarying float outputPercentLife;\r\nvarying vec4 outputColorMult;\r\nvoid main() {\r\nfloat lifeTime = uvLifeTimeFrameStart.z;\r\nfloat frameStart = uvLifeTimeFrameStart.w;\r\nvec3 velocity = (world * vec4(velocityStartSize.xyz,\r\n                              0.)).xyz + worldVelocity;\r\nfloat startSize = velocityStartSize.w;\r\nvec3 acceleration = (world * vec4(accelerationEndSize.xyz,\r\n                                  0)).xyz + worldAcceleration;\r\nfloat endSize = accelerationEndSize.w;\r\nfloat spinStart = spinStartSpinSpeed.x;\r\nfloat spinSpeed = spinStartSpinSpeed.y;\r\n\r\nfloat localTime = mod((time - timeOffset - startTime), timeRange);\r\nfloat percentLife = localTime / lifeTime;\r\n\r\nfloat frame = mod(floor(localTime / frameDuration + frameStart),\r\n                  numFrames);\r\nfloat uOffset = frame / numFrames;\r\nfloat u = uOffset + (uv.x + 0.5) * (1. / numFrames);\r\n\r\noutputTexcoord = vec2(u, uv.y + 0.5);\r\noutputColorMult = colorMult;\r\n\r\nfloat size = mix(startSize, endSize, percentLife);\r\nsize = (percentLife < 0. || percentLife > 1.) ? 0. : size;\r\nfloat s = sin(spinStart + spinSpeed * localTime);\r\nfloat c = cos(spinStart + spinSpeed * localTime);\r\n\r\nvec4 rotatedPoint = vec4((uv.x * c + uv.y * s) * size, 0.,\r\n                         (uv.x * s - uv.y * c) * size, 1.);\r\nvec3 center = velocity * localTime +\r\n              acceleration * localTime * localTime +\r\n              position +offset;\r\n\r\nvec4 q2 = orientation + orientation;\r\nvec4 qx = orientation.xxxw * q2.xyzx;\r\nvec4 qy = orientation.xyyw * q2.xyzy;\r\nvec4 qz = orientation.xxzw * q2.xxzz;\r\n\r\nmat4 localMatrix = mat4(\r\n    (1.0 - qy.y) - qz.z,\r\n    qx.y + qz.w,\r\n    qx.z - qy.w,\r\n    0,\r\n\r\n    qx.y - qz.w,\r\n    (1.0 - qx.x) - qz.z,\r\n    qy.z + qx.w,\r\n    0,\r\n\r\n    qx.z + qy.w,\r\n    qy.z - qx.w,\r\n    (1.0 - qx.x) - qy.y,\r\n    0,\r\n\r\n    center.x, center.y, center.z, 1);\r\nrotatedPoint = localMatrix * rotatedPoint;\r\noutputPercentLife = percentLife;\r\ngl_Position = projectionMatrix * modelViewMatrix * rotatedPoint;\r\n}";
 
-var particleFragmentShader = "  #ifdef GL_ES\r\n        precision mediump float;\r\n        #endif\r\n        uniform sampler2D rampSampler;\r\n        uniform sampler2D colorSampler;\r\n\r\n        // Incoming variables from vertex shader\r\n        varying vec2 outputTexcoord;\r\n        varying float outputPercentLife;\r\n        varying vec4 outputColorMult;\r\n\r\n        void main() {\r\n            vec4 colorMult = texture2D(rampSampler, vec2(outputPercentLife, 0.5)) * outputColorMult;\r\n            gl_FragColor = texture2D(colorSampler, outputTexcoord) * colorMult;\r\n            // For debugging: requires setup of some uniforms and vertex\r\n            // attributes to be commented out to avoid GL errors\r\n            //gl_FragColor = vec4(1., 0., 0., 1.);\r\n        }";
+var particleFragmentShader = "// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js#L225\r\n\r\n#ifdef GL_ES\r\nprecision mediump float;\r\n#endif\r\nuniform sampler2D rampSampler;\r\nuniform sampler2D colorSampler;\r\n\r\n// Incoming variables from vertex shader\r\nvarying vec2 outputTexcoord;\r\nvarying float outputPercentLife;\r\nvarying vec4 outputColorMult;\r\n\r\nvoid main() {\r\n    vec4 colorMult = texture2D(rampSampler, vec2(outputPercentLife, 0.5)) * outputColorMult;\r\n    gl_FragColor = texture2D(colorSampler, outputTexcoord) * colorMult;\r\n    // For debugging: requires setup of some uniforms and vertex\r\n    // attributes to be commented out to avoid GL errors\r\n    //gl_FragColor = vec4(1., 0., 0., 1.);\r\n}";
+
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
 
 function ParticleEmitter ( particleSystem, opt_texture, opt_clock ) {
 
@@ -168,14 +180,12 @@ function ParticleEmitter ( particleSystem, opt_texture, opt_clock ) {
 
 	opt_clock = opt_clock || particleSystem.timeSource_;
 
-	this.tmpWorld_ = new Float32Array( 16 );
-
+	//TODO make alternative to instanced buffer
 	//this.particleBuffer_ = new THREE.BufferGeometry();
+	//this.indexBuffer_ = [];
 
 	this.particleBuffer_ = new THREE.InstancedBufferGeometry();
 	this.interleavedBuffer = new THREE.InterleavedBuffer();
-
-	this.indexBuffer_ = [];
 
 	this.numParticles_ = 0;
 
@@ -186,15 +196,13 @@ function ParticleEmitter ( particleSystem, opt_texture, opt_clock ) {
 
 	this.timeSource_ = opt_clock;
 
-	this.translation_ = [ 0, 0, 0 ];
-
 	this.setState( THREE.NormalBlending );
 
-}
+};
 
 ParticleEmitter.prototype = Object.create( THREE.Mesh.prototype );
 
-ParticleEmitter.prototype.constructor = ParticleEmitter
+ParticleEmitter.prototype.constructor = ParticleEmitter;
 
 ParticleEmitter.prototype.setTranslation = function ( x, y, z ) {
 
@@ -202,118 +210,109 @@ ParticleEmitter.prototype.setTranslation = function ( x, y, z ) {
         this.position.y = y;
         this.position.z = z;
 
-							}
+};
 
 ParticleEmitter.prototype.setState = function ( stateId ) {
 
         this.blendFunc_ = stateId;
 
-}
+};
 
 ParticleEmitter.prototype.setColorRamp = function ( colorRamp ) {
 
-        var width = colorRamp.length / 4;
-        if ( width % 1 != 0 ) {
+	var width = colorRamp.length / 4;
+	if (width % 1 != 0) {
 
-									throw 'colorRamp must have multiple of 4 entries';
+		throw 'colorRamp must have multiple of 4 entries';
 
-        }
+	}
 
-        if ( this.rampTexture_ == this.particleSystem.defaultRampTexture ) {
+	if (this.rampTexture_ == this.particleSystem.defaultRampTexture) {
 
-									this.rampTexture_ = null;
+		this.rampTexture_ = null;
 
-        }
+	}
 
-        this.rampTexture_ = this.particleSystem.createTextureFromFloats( width, 1, colorRamp, this.rampTexture_ );
+	this.rampTexture_ = this.particleSystem.createTextureFromFloats( width, 1, colorRamp, this.rampTexture_ );
 
-}
+};
 
 ParticleEmitter.prototype.validateParameters = function ( parameters ) {
 
-        var defaults = new ParticleSpec();
-        for ( var key in parameters ) {
+	var defaults = new ParticleSpec();
 
-									if ( typeof defaults[ key ] === 'undefined' ) {
+	for ( var key in parameters ) {
 
-										throw 'unknown particle parameter "' + key + '"';
+		if ( typeof defaults[ key ] === 'undefined' ) {
 
-									}
+			throw 'unknown particle parameter "' + key + '"';
 
-        }
-        for ( var key in defaults ) {
+		}
 
-									if ( typeof parameters[ key ] === 'undefined' ) {
+	}
 
-										parameters[ key ] = defaults[ key ];
+	for ( var key in defaults ) {
 
-									}
+		if ( typeof parameters[ key ] === 'undefined' ) {
 
-        }
+			parameters[ key ] = defaults[ key ];
 
-}
+		}
+
+	}
+
+};
 
 ParticleEmitter.prototype.createParticles_ = function( firstParticleIndex, numParticles, parameters, opt_perParticleParamSetter ) {
 
     var interleaveBufferData = this.interleavedBuffer.array;
 
-    // Set the globals.
     this.billboard_ = parameters.billboard;
 
     var random = this.particleSystem.randomFunction_;
 
-    var plusMinus = function (range) {
+    var plusMinus = function ( range ) {
 
         return ( random() - 0.5 ) * range * 2;
 
     };
 
     // TODO: change to not allocate.
-    var plusMinusVector = function (range) {
+    var plusMinusVector = function ( range ) {
 
         var v = [];
-        for (var ii = 0; ii < range.length; ++ii) {
 
-            v.push(plusMinus(range[ii]));
+        for (var ii = 0; ii < range.length; ++ ii) {
+
+            v.push( plusMinus( range[ ii ] ) );
 
         }
+
         return v;
 
     };
 
+    for ( var ii = 0; ii < numParticles; ++ ii ) {
 
-    for (var ii = 0; ii < numParticles; ++ii) {
+        if ( opt_perParticleParamSetter ) {
 
-        if (opt_perParticleParamSetter) {
-
-            opt_perParticleParamSetter(ii, parameters);
+            opt_perParticleParamSetter( ii, parameters );
 
         }
+
         var pLifeTime = parameters.lifeTime;
-        var pStartTime = ( parameters.startTime === null ) ?
-            ( ii * parameters.lifeTime / numParticles ) : parameters.startTime;
-        var pFrameStart =
-            parameters.frameStart + plusMinus(parameters.frameStartRange);
-
-        var pPosition = new THREE.Vector3().addVectors(
-            new THREE.Vector3().fromArray(parameters.position), new THREE.Vector3().fromArray(plusMinusVector(parameters.positionRange)));
-
-        var pVelocity = new THREE.Vector3().addVectors(
-            new THREE.Vector3().fromArray(parameters.velocity), new THREE.Vector3().fromArray(plusMinusVector(parameters.velocityRange)));
-        var pAcceleration = new THREE.Vector3().addVectors(
-            new THREE.Vector3().fromArray(parameters.acceleration),
-            new THREE.Vector3().fromArray(plusMinusVector(parameters.accelerationRange)));
-        var pColorMult = new THREE.Vector4().addVectors(
-            new THREE.Vector4().fromArray(parameters.colorMult), new THREE.Vector4().fromArray(plusMinusVector(parameters.colorMultRange)));
-        var pSpinStart =
-            parameters.spinStart + plusMinus(parameters.spinStartRange);
-        var pSpinSpeed =
-            parameters.spinSpeed + plusMinus(parameters.spinSpeedRange);
-        var pStartSize =
-            parameters.startSize + plusMinus(parameters.startSizeRange);
+        var pStartTime = ( parameters.startTime === null ) ? ( ii * parameters.lifeTime / numParticles ) : parameters.startTime;
+        var pFrameStart = parameters.frameStart + plusMinus(parameters.frameStartRange);
+        var pPosition = new THREE.Vector3().addVectors( new THREE.Vector3().fromArray(parameters.position), new THREE.Vector3().fromArray(plusMinusVector(parameters.positionRange)));
+        var pVelocity = new THREE.Vector3().addVectors( new THREE.Vector3().fromArray(parameters.velocity), new THREE.Vector3().fromArray(plusMinusVector(parameters.velocityRange)));
+        var pAcceleration = new THREE.Vector3().addVectors( new THREE.Vector3().fromArray(parameters.acceleration), new THREE.Vector3().fromArray( plusMinusVector( parameters.accelerationRange )));
+        var pColorMult = new THREE.Vector4().addVectors( new THREE.Vector4().fromArray(parameters.colorMult), new THREE.Vector4().fromArray(plusMinusVector( parameters.colorMultRange )));
+        var pSpinStart = parameters.spinStart + plusMinus(parameters.spinStartRange);
+        var pSpinSpeed = parameters.spinSpeed + plusMinus(parameters.spinSpeedRange);
+        var pStartSize = parameters.startSize + plusMinus(parameters.startSizeRange);
         var pEndSize = parameters.endSize + plusMinus(parameters.endSizeRange);
         var pOrientation = new THREE.Vector4().fromArray(parameters.orientation);
-        // make each corner of the particle.
+
         for (var jj = 0; jj < 1; ++jj) {
 
             var offset0 = LAST_IDX * jj + ( ii * LAST_IDX * 4 ) + ( firstParticleIndex * LAST_IDX * 4 );
@@ -375,141 +374,146 @@ ParticleEmitter.prototype.createParticles_ = function( firstParticleIndex, numPa
 
 };
 
-ParticleEmitter.prototype.allocateParticles_ = function( numParticles,parameters ) {
+ParticleEmitter.prototype.allocateParticles_ = function ( numParticles, parameters ) {
 
-    if ( this.numParticles_ != numParticles ) {
+	if ( this.numParticles_ != numParticles ) {
 
-					var numIndices = 6 * numParticles;
-					if ( numIndices > 65536 ) {
+		var numIndices = 6 * numParticles;
 
-						throw "can't have more than 10922 particles per emitter";
+		if (numIndices > 65536) {
 
-					}
+			throw "can't have more than 10922 particles per emitter";
 
-					var vertexBuffer = new THREE.InterleavedBuffer( new Float32Array( [
-									// Front
-									0, 0, 0, 0, - 0.5, - 0.5, 0, 0,
-									0, 0, 0, 0, 0.5, - 0.5, 0, 0,
-									0, 0, 0, 0, 0.5, 0.5, 0, 0,
-									0, 0, 0, 0, - 0.5, 0.5, 0, 0
-					] ), 8 );
+		}
 
-
-
-					// Use vertexBuffer, starting at offset 0, 3 items in position attribute
-					var positions = new THREE.InterleavedBufferAttribute( vertexBuffer, 3, 0 );
-					this.particleBuffer_.addAttribute( 'position', positions );
-					// Use vertexBuffer, starting at offset 4, 2 items in uv attribute
-					var uvs = new THREE.InterleavedBufferAttribute( vertexBuffer, 2, 4 );
-					this.particleBuffer_.addAttribute( 'uv', uvs );
-
-					var indices = new Uint16Array( [
-									0, 1, 2,
-									0, 2, 3
-
-					] );
-
-					this.particleBuffer_.setIndex( new THREE.BufferAttribute( indices, 1 ) );
+		var vertexBuffer = new THREE.InterleavedBuffer( new Float32Array([
+			// Front
+			0, 0, 0, 0, -0.5, -0.5, 0, 0,
+			0, 0, 0, 0, 0.5, -0.5, 0, 0,
+			0, 0, 0, 0, 0.5, 0.5, 0, 0,
+			0, 0, 0, 0, -0.5, 0.5, 0, 0
+		]), 8);
 
 
-					this.numParticles_ = numParticles;
-					this.interleavedBuffer = new THREE.InstancedInterleavedBuffer( new Float32Array(  numParticles * singleParticleArray_.byteLength ),LAST_IDX, 1 ).setDynamic( true );
+		// Use vertexBuffer, starting at offset 0, 3 items in position attribute
+		var positions = new THREE.InterleavedBufferAttribute( vertexBuffer, 3, 0 );
+		this.particleBuffer_.addAttribute( 'position', positions );
+		// Use vertexBuffer, starting at offset 4, 2 items in uv attribute
+		var uvs = new THREE.InterleavedBufferAttribute( vertexBuffer, 2, 4 );
+		this.particleBuffer_.addAttribute( 'uv', uvs );
 
-					this.particleBuffer_.addAttribute( 'offset', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 3, POSITION_START_TIME_IDX ) );
-					this.particleBuffer_.addAttribute( 'startTime', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 1, 3 ) );
-					this.particleBuffer_.addAttribute( 'uvLifeTimeFrameStart', new THREE.InterleavedBufferAttribute( this.interleavedBuffer,4, UV_LIFE_TIME_FRAME_START_IDX ) );
-					this.particleBuffer_.addAttribute( 'velocityStartSize', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,VELOCITY_START_SIZE_IDX ) );
-					this.particleBuffer_.addAttribute( 'accelerationEndSize', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,ACCELERATION_END_SIZE_IDX ) );
-					this.particleBuffer_.addAttribute( 'spinStartSpinSpeed', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,SPIN_START_SPIN_SPEED_IDX ) );
-					this.particleBuffer_.addAttribute( 'orientation', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,ORIENTATION_IDX ) );
-					this.particleBuffer_.addAttribute( 'colorMult', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,COLOR_MULT_IDX ) );
-					this.particleBuffer_.boundingSphere = new THREE.Sphere();
-					var uniforms = {
+		var indices = new Uint16Array([
 
-									world:  { type: 'm4', value: this.matrixWorld },
-									viewInverse:  { type: 'm4', value: this.particleSystem.camera.matrixWorld },
-									worldVelocity:  { type: 'v3', value: null },
-									worldAcceleration:  { type: 'v3', value: null },
-									timeRange:  { type: 'f', value: null },
-									time:  { type: 'f', value: null },
-									timeOffset:  { type: 'f', value: null },
-									frameDuration:  { type: 'f', value: null },
-									numFrames:  { type: 'f', value: null },
-									rampSampler: { type: "t", value: this.rampTexture_ }, // regular texture;
-									colorSampler: { type: "t", value: this.colorTexture_ } // regular texture;
+			0, 1, 2,
+			0, 2, 3
 
-								};
+		]);
 
-					var material = new THREE.ShaderMaterial( {
-									uniforms: uniforms,
-									vertexShader: ( parameters.billboard ) ? billboardParticleInstancedVertexShader : orientedParticleInstancedVertexShader,
-									fragmentShader: particleFragmentShader,
-									side: THREE.DoubleSide,//(this.billboard_)? THREE.DoubleSide:THREE.FrontSide,
-									blending: this.blendFunc_,
-									depthTest:      true,
-									depthWrite:      false,
-									transparent:    true
-								} );
+		this.particleBuffer_.setIndex( new THREE.BufferAttribute( indices, 1 ) );
+
+		this.numParticles_ = numParticles;
+		this.interleavedBuffer = new THREE.InstancedInterleavedBuffer( new Float32Array( numParticles * singleParticleArray_.byteLength ), LAST_IDX, 1 ).setDynamic( true );
+
+		this.particleBuffer_.addAttribute( 'offset', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 3, POSITION_START_TIME_IDX));
+		this.particleBuffer_.addAttribute( 'startTime', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 1, 3));
+		this.particleBuffer_.addAttribute( 'uvLifeTimeFrameStart', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, UV_LIFE_TIME_FRAME_START_IDX));
+		this.particleBuffer_.addAttribute( 'velocityStartSize', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, VELOCITY_START_SIZE_IDX));
+		this.particleBuffer_.addAttribute( 'accelerationEndSize', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, ACCELERATION_END_SIZE_IDX));
+		this.particleBuffer_.addAttribute( 'spinStartSpinSpeed', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, SPIN_START_SPIN_SPEED_IDX));
+		this.particleBuffer_.addAttribute( 'orientation', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, ORIENTATION_IDX));
+		this.particleBuffer_.addAttribute( 'colorMult', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, COLOR_MULT_IDX));
+
+		//TODO Fix boundingSphere
+		this.particleBuffer_.boundingSphere = new THREE.Sphere();
+
+		var uniforms = {
+
+			world: { type: 'm4', value: this.matrixWorld },
+			viewInverse: { type: 'm4', value: this.particleSystem.camera.matrixWorld },
+			worldVelocity: { type: 'v3', value: null },
+			worldAcceleration: { type: 'v3', value: null },
+			timeRange: { type: 'f', value: null },
+			time: { type: 'f', value: null },
+			timeOffset: { type: 'f', value: null },
+			frameDuration: { type: 'f', value: null },
+			numFrames: { type: 'f', value: null },
+			rampSampler: { type: "t", value: this.rampTexture_ },
+			colorSampler: { type: "t", value: this.colorTexture_ }
+
+		};
+
+		var material = new THREE.ShaderMaterial({
+
+			uniforms: uniforms,
+			vertexShader: ( parameters.billboard ) ? billboardParticleInstancedVertexShader : orientedParticleInstancedVertexShader,
+			fragmentShader: particleFragmentShader,
+			side: (this.billboard_)? THREE.DoubleSide:THREE.FrontSide,
+			blending: this.blendFunc_,
+			depthTest: true,
+			depthWrite: false,
+			transparent: true
+
+		});
 
 
-					this.geometry = this.particleBuffer_;
-					this.material = material;
+		this.geometry = this.particleBuffer_;
+		this.material = material;
 
-    }
+	}
 
-			};
+};
 
 ParticleEmitter.prototype.setParameters = function ( parameters, opt_perParticleParamSetter ) {
 
-        this.validateParameters( parameters );
+	this.validateParameters ( parameters );
 
-        var numParticles = parameters.numParticles;
+	var numParticles = parameters.numParticles;
 
-        this.allocateParticles_( numParticles, parameters );
-        this.createParticles_(
-            0,
-            numParticles,
-            parameters,
-            opt_perParticleParamSetter );
+	this.allocateParticles_ ( numParticles, parameters );
+	this.createParticles_ ( 0, numParticles, parameters, opt_perParticleParamSetter );
 
-							}
+};
 
 ParticleEmitter.prototype.draw = function ( world, viewProjection, timeOffset ) {
 
-					//var uniforms = this.mesh.material.uniforms;
-					var uniforms = this.material.uniforms;
-					if ( world !== undefined ) {
+	var uniforms = this.material.uniforms;
 
-						uniforms.world.value = world;
+	if ( world !== undefined ) {
 
-					}
+		uniforms.world.value = world;
 
+	}
 
-					var curTime = this.timeSource_();
-					uniforms.time.value = curTime;
-					uniforms.timeOffset.value = timeOffset;
+	uniforms.time.value = this.timeSource_();
+	uniforms.timeOffset.value = timeOffset;
 
-    }
+};
 
-ParticleEmitter.prototype.createOneShot = function() {
+ParticleEmitter.prototype.createOneShot = function () {
 
-        return new OneShot( this,this.particleSystem.scene );
+	return new OneShot( this, this.particleSystem.scene );
 
-							}
+};
 
-ParticleEmitter.prototype.clone = function  ( object ) {
+ParticleEmitter.prototype.clone = function ( object ) {
 
-					if ( object === undefined ) object = this.particleSystem.createParticleEmitter( this.colorTexture_, this.timeSource_ );//new ParticleEmitter(this.particleSystem,this.colorTexture_,this.timeSource_);
-					object.geometry = this.geometry;
-					object.material = this.material.clone();
-					object.material.uniforms.world.value = this.matrixWorld;
-					object.material.uniforms.viewInverse.value = this.particleSystem.camera.matrixWorld;
-					object.material.uniforms.rampSampler.value = this.rampTexture_;
-					object.material.uniforms.colorSampler.value = this.colorTexture_;
-					THREE.Mesh.prototype.clone.call( this, object );
-					return object;
+	if ( object === undefined ) object = this.particleSystem.createParticleEmitter( this.colorTexture_, this.timeSource_);
 
-    }
+	object.geometry = this.geometry;
+	object.material = this.material.clone();
+	object.material.uniforms.world.value = this.matrixWorld;
+	object.material.uniforms.viewInverse.value = this.particleSystem.camera.matrixWorld;
+	object.material.uniforms.rampSampler.value = this.rampTexture_;
+	object.material.uniforms.colorSampler.value = this.colorTexture_;
+
+	THREE.Mesh.prototype.clone.call( this, object );
+
+	return object;
+
+};
+
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
 
 function Trail ( particleSystem, maxParticles, parameters, opt_texture, opt_perParticleParamSetter, opt_clock ) {
 
@@ -559,6 +563,9 @@ Trail.prototype.birthParticles = function ( position ) {
 
 };
 
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 function ParticleSystem ( scene, camera, opt_clock, opt_randomFunction ) {
 
 	this.scene = scene;
@@ -605,7 +612,7 @@ function ParticleSystem ( scene, camera, opt_clock, opt_randomFunction ) {
 	this.defaultColorTexture = colorTexture;
 	this.defaultRampTexture = rampTexture;
 
-};
+}
 
 ParticleSystem.prototype.createTextureFromFloats = function ( width, height, pixels, opt_texture ) {
 
@@ -617,14 +624,15 @@ ParticleSystem.prototype.createTextureFromFloats = function ( width, height, pix
 	} else {
 
 		var data = new Uint8Array( pixels.length );
+		var t;
 		for ( var i = 0; i < pixels.length; i ++ ) {
 
-			var t = pixels[ i ] * 255.;
+			t = pixels[ i ] * 255.;
 			data[ i ] = t;
 
 		}
 
-		var texture = new THREE.DataTexture( data, width, height, THREE.RGBAFormat );
+		texture = new THREE.DataTexture( data, width, height, THREE.RGBAFormat );
 		texture.minFilter = THREE.LinearFilter;
 		texture.magFilter = THREE.LinearFilter;
 		texture.needsUpdate = true;
