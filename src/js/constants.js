@@ -1,3 +1,6 @@
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 export var CORNERS_ = [
 
 	[ - 0.5, - 0.5 ],
@@ -7,16 +10,16 @@ export var CORNERS_ = [
 
 ];
 
-export function createDefaultClock_( particleSystem ) {
+export function createDefaultClock_ ( particleSystem ) {
 
 	return function () {
 
-					var now = particleSystem.now_;
-					var base = particleSystem.timeBase_;
+		var now = particleSystem.now_;
+		var base = particleSystem.timeBase_;
 
-					return ( now.getTime() - base.getTime() ) / 1000.0;
+		return ( now.getTime() - base.getTime() ) / 1000.0;
 
-				}
+	}
 
 }
 

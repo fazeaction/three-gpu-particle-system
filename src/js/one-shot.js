@@ -1,3 +1,6 @@
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 function OneShot( emitter, scene ) {
 
 	THREE.Mesh.call( this );

@@ -1,3 +1,6 @@
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 import { ParticleEmitter } from './emitter.js'
 
 function Trail ( particleSystem, maxParticles, parameters, opt_texture, opt_perParticleParamSetter, opt_clock ) {

@@ -1,3 +1,6 @@
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 import { createDefaultClock_ } from './constants.js'
 import { ParticleEmitter } from './emitter'
 import { Trail } from './trail'
@@ -48,7 +51,7 @@ function ParticleSystem ( scene, camera, opt_clock, opt_randomFunction ) {
 	this.defaultColorTexture = colorTexture;
 	this.defaultRampTexture = rampTexture;
 
-};
+}
 
 ParticleSystem.prototype.createTextureFromFloats = function ( width, height, pixels, opt_texture ) {
 
@@ -60,14 +63,15 @@ ParticleSystem.prototype.createTextureFromFloats = function ( width, height, pix
 	} else {
 
 		var data = new Uint8Array( pixels.length );
+		var t;
 		for ( var i = 0; i < pixels.length; i ++ ) {
 
-			var t = pixels[ i ] * 255.;
+			t = pixels[ i ] * 255.;
 			data[ i ] = t;
 
 		}
 
-		var texture = new THREE.DataTexture( data, width, height, THREE.RGBAFormat );
+		texture = new THREE.DataTexture( data, width, height, THREE.RGBAFormat );
 		texture.minFilter = THREE.LinearFilter;
 		texture.magFilter = THREE.LinearFilter;
 		texture.needsUpdate = true;
