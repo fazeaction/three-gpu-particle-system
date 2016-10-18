@@ -1,3 +1,6 @@
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 var CORNERS_ = [
 
 	[ - 0.5, - 0.5 ],
@@ -7,16 +10,16 @@ var CORNERS_ = [
 
 ];
 
-function createDefaultClock_( particleSystem ) {
+function createDefaultClock_ ( particleSystem ) {
 
 	return function () {
 
-					var now = particleSystem.now_;
-					var base = particleSystem.timeBase_;
+		var now = particleSystem.now_;
+		var base = particleSystem.timeBase_;
 
-					return ( now.getTime() - base.getTime() ) / 1000.0;
+		return ( now.getTime() - base.getTime() ) / 1000.0;
 
-				}
+	}
 
 }
 
@@ -29,6 +32,9 @@ var ORIENTATION_IDX = 20;
 var COLOR_MULT_IDX = 24;
 var LAST_IDX = 28;
 var singleParticleArray_ = new Float32Array( 4 * LAST_IDX );
+
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
 
 function ParticleSpec () {
 
@@ -92,6 +98,9 @@ function ParticleSpec () {
 
 }
 
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 function OneShot( emitter, scene ) {
 
 	THREE.Mesh.call( this );
@@ -150,11 +159,14 @@ OneShot.prototype.draw = function ( world, viewProjection, timeOffset ) {
 
 };
 
-var billboardParticleInstancedVertexShader = "uniform mat4 world;\r\n        uniform mat4 viewInverse;\r\n        uniform vec3 worldVelocity;\r\n        uniform vec3 worldAcceleration;\r\n        uniform float timeRange;\r\n        uniform float time;\r\n        uniform float timeOffset;\r\n        uniform float frameDuration;\r\n        uniform float numFrames;\r\n\r\n        // Incoming vertex attributes\r\n        attribute vec3 offset;\r\n        attribute vec4 uvLifeTimeFrameStart;\r\n        attribute float startTime;\r\n        attribute vec4 velocityStartSize;\r\n        attribute vec4 accelerationEndSize;\r\n        attribute vec4 spinStartSpinSpeed;\r\n        attribute vec4 colorMult;\r\n\r\n        // Outgoing variables to fragment shader\r\n        varying vec2 outputTexcoord;\r\n        varying float outputPercentLife;\r\n        varying vec4 outputColorMult;\r\n\r\n        void main() {\r\n            float lifeTime = uvLifeTimeFrameStart.z;\r\n            float frameStart = uvLifeTimeFrameStart.w;\r\n            vec3 velocity = (world * vec4(velocityStartSize.xyz,\r\n                                         0.)).xyz + worldVelocity;\r\n            float startSize = velocityStartSize.w;\r\n            vec3 acceleration = (world * vec4(accelerationEndSize.xyz,\r\n                                             0)).xyz + worldAcceleration;\r\n            float endSize = accelerationEndSize.w;\r\n            float spinStart = spinStartSpinSpeed.x;\r\n            float spinSpeed = spinStartSpinSpeed.y;\r\n\r\n            float localTime = mod((time - timeOffset - startTime), timeRange);\r\n            float percentLife = localTime / lifeTime;\r\n\r\n            float frame = mod(floor(localTime / frameDuration + frameStart),\r\n                             numFrames);\r\n            float uOffset = frame / numFrames;\r\n            float u = uOffset + (uv.x + 0.5) * (1. / numFrames);\r\n\r\n            outputTexcoord = vec2(u, uv.y + 0.5);\r\n            outputColorMult = colorMult;\r\n\r\n            vec3 basisX = viewInverse[0].xyz;\r\n            vec3 basisZ = viewInverse[1].xyz;\r\n\r\n            float size = mix(startSize, endSize, percentLife);\r\n            size = (percentLife < 0. || percentLife > 1.) ? 0. : size;\r\n            float s = sin(spinStart + spinSpeed * localTime);\r\n            float c = cos(spinStart + spinSpeed * localTime);\r\n\r\n            vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, -uv.x * s + uv.y * c);\r\n            vec3 localPosition = vec3(basisX * rotatedPoint.x + basisZ * rotatedPoint.y) * size +\r\n                                velocity * localTime +\r\n                                acceleration * localTime * localTime +\r\n                                position;\r\n\r\n            outputPercentLife = percentLife;\r\n            gl_Position = projectionMatrix * viewMatrix * vec4(localPosition + offset + world[3].xyz, 1.);\r\n\r\n        }";
+var billboardParticleInstancedVertexShader = "\nuniform mat4 world;\nuniform mat4 viewInverse;\nuniform vec3 worldVelocity;\nuniform vec3 worldAcceleration;\nuniform float timeRange;\nuniform float time;\nuniform float timeOffset;\nuniform float frameDuration;\nuniform float numFrames;\nattribute vec3 offset;\nattribute vec4 uvLifeTimeFrameStart;\nattribute float startTime;\nattribute vec4 velocityStartSize;\nattribute vec4 accelerationEndSize;\nattribute vec4 spinStartSpinSpeed;\nattribute vec4 colorMult;\nvarying vec2 outputTexcoord;\nvarying float outputPercentLife;\nvarying vec4 outputColorMult;\nvoid main() {\n    float lifeTime = uvLifeTimeFrameStart.z;\n    float frameStart = uvLifeTimeFrameStart.w;\n    vec3 velocity = (world * vec4(velocityStartSize.xyz,\n                                 0.)).xyz + worldVelocity;\n    float startSize = velocityStartSize.w;\n    vec3 acceleration = (world * vec4(accelerationEndSize.xyz,\n                                     0)).xyz + worldAcceleration;\n    float endSize = accelerationEndSize.w;\n    float spinStart = spinStartSpinSpeed.x;\n    float spinSpeed = spinStartSpinSpeed.y;\n    float localTime = mod((time - timeOffset - startTime), timeRange);\n    float percentLife = localTime / lifeTime;\n    float frame = mod(floor(localTime / frameDuration + frameStart),\n                     numFrames);\n    float uOffset = frame / numFrames;\n    float u = uOffset + (uv.x + 0.5) * (1. / numFrames);\n    outputTexcoord = vec2(u, uv.y + 0.5);\n    outputColorMult = colorMult;\n    vec3 basisX = viewInverse[0].xyz;\n    vec3 basisZ = viewInverse[1].xyz;\n    float size = mix(startSize, endSize, percentLife);\n    size = (percentLife < 0. || percentLife > 1.) ? 0. : size;\n    float s = sin(spinStart + spinSpeed * localTime);\n    float c = cos(spinStart + spinSpeed * localTime);\n    vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, -uv.x * s + uv.y * c);\n    vec3 localPosition = vec3(basisX * rotatedPoint.x + basisZ * rotatedPoint.y) * size +\n                        velocity * localTime +\n                        acceleration * localTime * localTime +\n                        position;\n    outputPercentLife = percentLife;\n    gl_Position = projectionMatrix * viewMatrix * vec4(localPosition + offset + world[3].xyz, 1.);\n}";
 
-var orientedParticleInstancedVertexShader = "// 3D (oriented) vertex shader\r\n       uniform mat4 worldViewProjection;\r\n       uniform mat4 world;\r\n       uniform vec3 worldVelocity;\r\n       uniform vec3 worldAcceleration;\r\n       uniform float timeRange;\r\n       uniform float time;\r\n       uniform float timeOffset;\r\n       uniform float frameDuration;\r\n       uniform float numFrames;\r\n\r\n      // Incoming vertex attributes\r\n      attribute vec3 offset;\r\n      attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart\r\n      attribute float startTime;    // position.xyz, startTime\r\n      attribute vec4 velocityStartSize;    // velocity.xyz, startSize\r\n      attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize\r\n      attribute vec4 spinStartSpinSpeed;   // spinStart.x, spinSpeed.y\r\n      attribute vec4 orientation;          // orientation quaternion\r\n      attribute vec4 colorMult;            // multiplies color and ramp textures\r\n\r\n       // Outgoing variables to fragment shader\r\n       varying vec2 outputTexcoord;\r\n       varying float outputPercentLife;\r\n       varying vec4 outputColorMult;\r\n      void main() {\r\n        float lifeTime = uvLifeTimeFrameStart.z;\r\n        float frameStart = uvLifeTimeFrameStart.w;\r\n        vec3 velocity = (world * vec4(velocityStartSize.xyz,\r\n                                      0.)).xyz + worldVelocity;\r\n        float startSize = velocityStartSize.w;\r\n        vec3 acceleration = (world * vec4(accelerationEndSize.xyz,\r\n                                          0)).xyz + worldAcceleration;\r\n        float endSize = accelerationEndSize.w;\r\n        float spinStart = spinStartSpinSpeed.x;\r\n        float spinSpeed = spinStartSpinSpeed.y;\r\n\r\n        float localTime = mod((time - timeOffset - startTime), timeRange);\r\n        float percentLife = localTime / lifeTime;\r\n\r\n        float frame = mod(floor(localTime / frameDuration + frameStart),\r\n                          numFrames);\r\n        float uOffset = frame / numFrames;\r\n        float u = uOffset + (uv.x + 0.5) * (1. / numFrames);\r\n\r\n        outputTexcoord = vec2(u, uv.y + 0.5);\r\n        outputColorMult = colorMult;\r\n\r\n        float size = mix(startSize, endSize, percentLife);\r\n        size = (percentLife < 0. || percentLife > 1.) ? 0. : size;\r\n        float s = sin(spinStart + spinSpeed * localTime);\r\n        float c = cos(spinStart + spinSpeed * localTime);\r\n\r\n        vec4 rotatedPoint = vec4((uv.x * c + uv.y * s) * size, 0.,\r\n                                 (uv.x * s - uv.y * c) * size, 1.);\r\n        vec3 center = velocity * localTime +\r\n                      acceleration * localTime * localTime +\r\n                      position +offset;\r\n\r\n        vec4 q2 = orientation + orientation;\r\n        vec4 qx = orientation.xxxw * q2.xyzx;\r\n        vec4 qy = orientation.xyyw * q2.xyzy;\r\n        vec4 qz = orientation.xxzw * q2.xxzz;\r\n\r\n        mat4 localMatrix = mat4(\r\n            (1.0 - qy.y) - qz.z,\r\n            qx.y + qz.w,\r\n            qx.z - qy.w,\r\n            0,\r\n\r\n            qx.y - qz.w,\r\n            (1.0 - qx.x) - qz.z,\r\n            qy.z + qx.w,\r\n            0,\r\n\r\n            qx.z + qy.w,\r\n            qy.z - qx.w,\r\n            (1.0 - qx.x) - qy.y,\r\n            0,\r\n\r\n            center.x, center.y, center.z, 1);\r\n        rotatedPoint = localMatrix * rotatedPoint;\r\n        outputPercentLife = percentLife;\r\n        gl_Position = projectionMatrix * modelViewMatrix * rotatedPoint;\r\n      }";
+var orientedParticleInstancedVertexShader = "\nuniform mat4 worldViewProjection;\nuniform mat4 world;\nuniform vec3 worldVelocity;\nuniform vec3 worldAcceleration;\nuniform float timeRange;\nuniform float time;\nuniform float timeOffset;\nuniform float frameDuration;\nuniform float numFrames;\nattribute vec3 offset;\nattribute vec4 uvLifeTimeFrameStart;attribute float startTime;attribute vec4 velocityStartSize;attribute vec4 accelerationEndSize;attribute vec4 spinStartSpinSpeed;attribute vec4 orientation;attribute vec4 colorMult;\nvarying vec2 outputTexcoord;\nvarying float outputPercentLife;\nvarying vec4 outputColorMult;\nvoid main() {\nfloat lifeTime = uvLifeTimeFrameStart.z;\nfloat frameStart = uvLifeTimeFrameStart.w;\nvec3 velocity = (world * vec4(velocityStartSize.xyz,\n                              0.)).xyz + worldVelocity;\nfloat startSize = velocityStartSize.w;\nvec3 acceleration = (world * vec4(accelerationEndSize.xyz,\n                                  0)).xyz + worldAcceleration;\nfloat endSize = accelerationEndSize.w;\nfloat spinStart = spinStartSpinSpeed.x;\nfloat spinSpeed = spinStartSpinSpeed.y;\nfloat localTime = mod((time - timeOffset - startTime), timeRange);\nfloat percentLife = localTime / lifeTime;\nfloat frame = mod(floor(localTime / frameDuration + frameStart),\n                  numFrames);\nfloat uOffset = frame / numFrames;\nfloat u = uOffset + (uv.x + 0.5) * (1. / numFrames);\noutputTexcoord = vec2(u, uv.y + 0.5);\noutputColorMult = colorMult;\nfloat size = mix(startSize, endSize, percentLife);\nsize = (percentLife < 0. || percentLife > 1.) ? 0. : size;\nfloat s = sin(spinStart + spinSpeed * localTime);\nfloat c = cos(spinStart + spinSpeed * localTime);\nvec4 rotatedPoint = vec4((uv.x * c + uv.y * s) * size, 0.,\n                         (uv.x * s - uv.y * c) * size, 1.);\nvec3 center = velocity * localTime +\n              acceleration * localTime * localTime +\n              position +offset;\nvec4 q2 = orientation + orientation;\nvec4 qx = orientation.xxxw * q2.xyzx;\nvec4 qy = orientation.xyyw * q2.xyzy;\nvec4 qz = orientation.xxzw * q2.xxzz;\nmat4 localMatrix = mat4(\n    (1.0 - qy.y) - qz.z,\n    qx.y + qz.w,\n    qx.z - qy.w,\n    0,\n    qx.y - qz.w,\n    (1.0 - qx.x) - qz.z,\n    qy.z + qx.w,\n    0,\n    qx.z + qy.w,\n    qy.z - qx.w,\n    (1.0 - qx.x) - qy.y,\n    0,\n    center.x, center.y, center.z, 1);\nrotatedPoint = localMatrix * rotatedPoint;\noutputPercentLife = percentLife;\ngl_Position = projectionMatrix * modelViewMatrix * rotatedPoint;\n}";
 
-var particleFragmentShader = "  #ifdef GL_ES\r\n        precision mediump float;\r\n        #endif\r\n        uniform sampler2D rampSampler;\r\n        uniform sampler2D colorSampler;\r\n\r\n        // Incoming variables from vertex shader\r\n        varying vec2 outputTexcoord;\r\n        varying float outputPercentLife;\r\n        varying vec4 outputColorMult;\r\n\r\n        void main() {\r\n            vec4 colorMult = texture2D(rampSampler, vec2(outputPercentLife, 0.5)) * outputColorMult;\r\n            gl_FragColor = texture2D(colorSampler, outputTexcoord) * colorMult;\r\n            // For debugging: requires setup of some uniforms and vertex\r\n            // attributes to be commented out to avoid GL errors\r\n            //gl_FragColor = vec4(1., 0., 0., 1.);\r\n        }";
+var particleFragmentShader = "\n#ifdef GL_ES\nprecision mediump float;\n#endif\nuniform sampler2D rampSampler;\nuniform sampler2D colorSampler;\nvarying vec2 outputTexcoord;\nvarying float outputPercentLife;\nvarying vec4 outputColorMult;\nvoid main() {\n    vec4 colorMult = texture2D(rampSampler, vec2(outputPercentLife, 0.5)) * outputColorMult;\n    gl_FragColor = texture2D(colorSampler, outputTexcoord) * colorMult;\n}";
+
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
 
 function ParticleEmitter ( particleSystem, opt_texture, opt_clock ) {
 
@@ -162,14 +174,12 @@ function ParticleEmitter ( particleSystem, opt_texture, opt_clock ) {
 
 	opt_clock = opt_clock || particleSystem.timeSource_;
 
-	this.tmpWorld_ = new Float32Array( 16 );
-
+	//TODO make alternative to instanced buffer
 	//this.particleBuffer_ = new THREE.BufferGeometry();
+	//this.indexBuffer_ = [];
 
 	this.particleBuffer_ = new THREE.InstancedBufferGeometry();
 	this.interleavedBuffer = new THREE.InterleavedBuffer();
-
-	this.indexBuffer_ = [];
 
 	this.numParticles_ = 0;
 
@@ -180,15 +190,13 @@ function ParticleEmitter ( particleSystem, opt_texture, opt_clock ) {
 
 	this.timeSource_ = opt_clock;
 
-	this.translation_ = [ 0, 0, 0 ];
-
 	this.setState( THREE.NormalBlending );
 
-}
+};
 
 ParticleEmitter.prototype = Object.create( THREE.Mesh.prototype );
 
-ParticleEmitter.prototype.constructor = ParticleEmitter
+ParticleEmitter.prototype.constructor = ParticleEmitter;
 
 ParticleEmitter.prototype.setTranslation = function ( x, y, z ) {
 
@@ -196,118 +204,109 @@ ParticleEmitter.prototype.setTranslation = function ( x, y, z ) {
         this.position.y = y;
         this.position.z = z;
 
-							}
+};
 
 ParticleEmitter.prototype.setState = function ( stateId ) {
 
         this.blendFunc_ = stateId;
 
-}
+};
 
 ParticleEmitter.prototype.setColorRamp = function ( colorRamp ) {
 
-        var width = colorRamp.length / 4;
-        if ( width % 1 != 0 ) {
+	var width = colorRamp.length / 4;
+	if (width % 1 != 0) {
 
-									throw 'colorRamp must have multiple of 4 entries';
+		throw 'colorRamp must have multiple of 4 entries';
 
-        }
+	}
 
-        if ( this.rampTexture_ == this.particleSystem.defaultRampTexture ) {
+	if (this.rampTexture_ == this.particleSystem.defaultRampTexture) {
 
-									this.rampTexture_ = null;
+		this.rampTexture_ = null;
 
-        }
+	}
 
-        this.rampTexture_ = this.particleSystem.createTextureFromFloats( width, 1, colorRamp, this.rampTexture_ );
+	this.rampTexture_ = this.particleSystem.createTextureFromFloats( width, 1, colorRamp, this.rampTexture_ );
 
-}
+};
 
 ParticleEmitter.prototype.validateParameters = function ( parameters ) {
 
-        var defaults = new ParticleSpec();
-        for ( var key in parameters ) {
+	var defaults = new ParticleSpec();
 
-									if ( typeof defaults[ key ] === 'undefined' ) {
+	for ( var key in parameters ) {
 
-										throw 'unknown particle parameter "' + key + '"';
+		if ( typeof defaults[ key ] === 'undefined' ) {
 
-									}
+			throw 'unknown particle parameter "' + key + '"';
 
-        }
-        for ( var key in defaults ) {
+		}
 
-									if ( typeof parameters[ key ] === 'undefined' ) {
+	}
 
-										parameters[ key ] = defaults[ key ];
+	for ( var key in defaults ) {
 
-									}
+		if ( typeof parameters[ key ] === 'undefined' ) {
 
-        }
+			parameters[ key ] = defaults[ key ];
 
-}
+		}
+
+	}
+
+};
 
 ParticleEmitter.prototype.createParticles_ = function( firstParticleIndex, numParticles, parameters, opt_perParticleParamSetter ) {
 
     var interleaveBufferData = this.interleavedBuffer.array;
 
-    // Set the globals.
     this.billboard_ = parameters.billboard;
 
     var random = this.particleSystem.randomFunction_;
 
-    var plusMinus = function (range) {
+    var plusMinus = function ( range ) {
 
         return ( random() - 0.5 ) * range * 2;
 
     };
 
     // TODO: change to not allocate.
-    var plusMinusVector = function (range) {
+    var plusMinusVector = function ( range ) {
 
         var v = [];
-        for (var ii = 0; ii < range.length; ++ii) {
 
-            v.push(plusMinus(range[ii]));
+        for (var ii = 0; ii < range.length; ++ ii) {
+
+            v.push( plusMinus( range[ ii ] ) );
 
         }
+
         return v;
 
     };
 
+    for ( var ii = 0; ii < numParticles; ++ ii ) {
 
-    for (var ii = 0; ii < numParticles; ++ii) {
+        if ( opt_perParticleParamSetter ) {
 
-        if (opt_perParticleParamSetter) {
-
-            opt_perParticleParamSetter(ii, parameters);
+            opt_perParticleParamSetter( ii, parameters );
 
         }
+
         var pLifeTime = parameters.lifeTime;
-        var pStartTime = ( parameters.startTime === null ) ?
-            ( ii * parameters.lifeTime / numParticles ) : parameters.startTime;
-        var pFrameStart =
-            parameters.frameStart + plusMinus(parameters.frameStartRange);
-
-        var pPosition = new THREE.Vector3().addVectors(
-            new THREE.Vector3().fromArray(parameters.position), new THREE.Vector3().fromArray(plusMinusVector(parameters.positionRange)));
-
-        var pVelocity = new THREE.Vector3().addVectors(
-            new THREE.Vector3().fromArray(parameters.velocity), new THREE.Vector3().fromArray(plusMinusVector(parameters.velocityRange)));
-        var pAcceleration = new THREE.Vector3().addVectors(
-            new THREE.Vector3().fromArray(parameters.acceleration),
-            new THREE.Vector3().fromArray(plusMinusVector(parameters.accelerationRange)));
-        var pColorMult = new THREE.Vector4().addVectors(
-            new THREE.Vector4().fromArray(parameters.colorMult), new THREE.Vector4().fromArray(plusMinusVector(parameters.colorMultRange)));
-        var pSpinStart =
-            parameters.spinStart + plusMinus(parameters.spinStartRange);
-        var pSpinSpeed =
-            parameters.spinSpeed + plusMinus(parameters.spinSpeedRange);
-        var pStartSize =
-            parameters.startSize + plusMinus(parameters.startSizeRange);
+        var pStartTime = ( parameters.startTime === null ) ? ( ii * parameters.lifeTime / numParticles ) : parameters.startTime;
+        var pFrameStart = parameters.frameStart + plusMinus(parameters.frameStartRange);
+        var pPosition = new THREE.Vector3().addVectors( new THREE.Vector3().fromArray(parameters.position), new THREE.Vector3().fromArray(plusMinusVector(parameters.positionRange)));
+        var pVelocity = new THREE.Vector3().addVectors( new THREE.Vector3().fromArray(parameters.velocity), new THREE.Vector3().fromArray(plusMinusVector(parameters.velocityRange)));
+        var pAcceleration = new THREE.Vector3().addVectors( new THREE.Vector3().fromArray(parameters.acceleration), new THREE.Vector3().fromArray( plusMinusVector( parameters.accelerationRange )));
+        var pColorMult = new THREE.Vector4().addVectors( new THREE.Vector4().fromArray(parameters.colorMult), new THREE.Vector4().fromArray(plusMinusVector( parameters.colorMultRange )));
+        var pSpinStart = parameters.spinStart + plusMinus(parameters.spinStartRange);
+        var pSpinSpeed = parameters.spinSpeed + plusMinus(parameters.spinSpeedRange);
+        var pStartSize = parameters.startSize + plusMinus(parameters.startSizeRange);
         var pEndSize = parameters.endSize + plusMinus(parameters.endSizeRange);
         var pOrientation = new THREE.Vector4().fromArray(parameters.orientation);
-        // make each corner of the particle.
+
         for (var jj = 0; jj < 1; ++jj) {
 
             var offset0 = LAST_IDX * jj + ( ii * LAST_IDX * 4 ) + ( firstParticleIndex * LAST_IDX * 4 );
@@ -369,141 +368,146 @@ ParticleEmitter.prototype.createParticles_ = function( firstParticleIndex, numPa
 
 };
 
-ParticleEmitter.prototype.allocateParticles_ = function( numParticles,parameters ) {
+ParticleEmitter.prototype.allocateParticles_ = function ( numParticles, parameters ) {
 
-    if ( this.numParticles_ != numParticles ) {
+	if ( this.numParticles_ != numParticles ) {
 
-					var numIndices = 6 * numParticles;
-					if ( numIndices > 65536 ) {
+		var numIndices = 6 * numParticles;
 
-						throw "can't have more than 10922 particles per emitter";
+		if (numIndices > 65536) {
 
-					}
+			throw "can't have more than 10922 particles per emitter";
 
-					var vertexBuffer = new THREE.InterleavedBuffer( new Float32Array( [
-									// Front
-									0, 0, 0, 0, - 0.5, - 0.5, 0, 0,
-									0, 0, 0, 0, 0.5, - 0.5, 0, 0,
-									0, 0, 0, 0, 0.5, 0.5, 0, 0,
-									0, 0, 0, 0, - 0.5, 0.5, 0, 0
-					] ), 8 );
+		}
 
-
-
-					// Use vertexBuffer, starting at offset 0, 3 items in position attribute
-					var positions = new THREE.InterleavedBufferAttribute( vertexBuffer, 3, 0 );
-					this.particleBuffer_.addAttribute( 'position', positions );
-					// Use vertexBuffer, starting at offset 4, 2 items in uv attribute
-					var uvs = new THREE.InterleavedBufferAttribute( vertexBuffer, 2, 4 );
-					this.particleBuffer_.addAttribute( 'uv', uvs );
-
-					var indices = new Uint16Array( [
-									0, 1, 2,
-									0, 2, 3
-
-					] );
-
-					this.particleBuffer_.setIndex( new THREE.BufferAttribute( indices, 1 ) );
+		var vertexBuffer = new THREE.InterleavedBuffer( new Float32Array([
+			// Front
+			0, 0, 0, 0, -0.5, -0.5, 0, 0,
+			0, 0, 0, 0, 0.5, -0.5, 0, 0,
+			0, 0, 0, 0, 0.5, 0.5, 0, 0,
+			0, 0, 0, 0, -0.5, 0.5, 0, 0
+		]), 8);
 
 
-					this.numParticles_ = numParticles;
-					this.interleavedBuffer = new THREE.InstancedInterleavedBuffer( new Float32Array(  numParticles * singleParticleArray_.byteLength ),LAST_IDX, 1 ).setDynamic( true );
+		// Use vertexBuffer, starting at offset 0, 3 items in position attribute
+		var positions = new THREE.InterleavedBufferAttribute( vertexBuffer, 3, 0 );
+		this.particleBuffer_.addAttribute( 'position', positions );
+		// Use vertexBuffer, starting at offset 4, 2 items in uv attribute
+		var uvs = new THREE.InterleavedBufferAttribute( vertexBuffer, 2, 4 );
+		this.particleBuffer_.addAttribute( 'uv', uvs );
 
-					this.particleBuffer_.addAttribute( 'offset', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 3, POSITION_START_TIME_IDX ) );
-					this.particleBuffer_.addAttribute( 'startTime', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 1, 3 ) );
-					this.particleBuffer_.addAttribute( 'uvLifeTimeFrameStart', new THREE.InterleavedBufferAttribute( this.interleavedBuffer,4, UV_LIFE_TIME_FRAME_START_IDX ) );
-					this.particleBuffer_.addAttribute( 'velocityStartSize', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,VELOCITY_START_SIZE_IDX ) );
-					this.particleBuffer_.addAttribute( 'accelerationEndSize', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,ACCELERATION_END_SIZE_IDX ) );
-					this.particleBuffer_.addAttribute( 'spinStartSpinSpeed', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,SPIN_START_SPIN_SPEED_IDX ) );
-					this.particleBuffer_.addAttribute( 'orientation', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,ORIENTATION_IDX ) );
-					this.particleBuffer_.addAttribute( 'colorMult', new THREE.InterleavedBufferAttribute( this.interleavedBuffer, 4,COLOR_MULT_IDX ) );
-					this.particleBuffer_.boundingSphere = new THREE.Sphere();
-					var uniforms = {
+		var indices = new Uint16Array([
 
-									world:  { type: 'm4', value: this.matrixWorld },
-									viewInverse:  { type: 'm4', value: this.particleSystem.camera.matrixWorld },
-									worldVelocity:  { type: 'v3', value: null },
-									worldAcceleration:  { type: 'v3', value: null },
-									timeRange:  { type: 'f', value: null },
-									time:  { type: 'f', value: null },
-									timeOffset:  { type: 'f', value: null },
-									frameDuration:  { type: 'f', value: null },
-									numFrames:  { type: 'f', value: null },
-									rampSampler: { type: "t", value: this.rampTexture_ }, // regular texture;
-									colorSampler: { type: "t", value: this.colorTexture_ } // regular texture;
+			0, 1, 2,
+			0, 2, 3
 
-								};
+		]);
 
-					var material = new THREE.ShaderMaterial( {
-									uniforms: uniforms,
-									vertexShader: ( parameters.billboard ) ? billboardParticleInstancedVertexShader : orientedParticleInstancedVertexShader,
-									fragmentShader: particleFragmentShader,
-									side: THREE.DoubleSide,//(this.billboard_)? THREE.DoubleSide:THREE.FrontSide,
-									blending: this.blendFunc_,
-									depthTest:      true,
-									depthWrite:      false,
-									transparent:    true
-								} );
+		this.particleBuffer_.setIndex( new THREE.BufferAttribute( indices, 1 ) );
+
+		this.numParticles_ = numParticles;
+		this.interleavedBuffer = new THREE.InstancedInterleavedBuffer( new Float32Array( numParticles * singleParticleArray_.byteLength ), LAST_IDX, 1 ).setDynamic( true );
+
+		this.particleBuffer_.addAttribute( 'offset', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 3, POSITION_START_TIME_IDX));
+		this.particleBuffer_.addAttribute( 'startTime', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 1, 3));
+		this.particleBuffer_.addAttribute( 'uvLifeTimeFrameStart', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, UV_LIFE_TIME_FRAME_START_IDX));
+		this.particleBuffer_.addAttribute( 'velocityStartSize', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, VELOCITY_START_SIZE_IDX));
+		this.particleBuffer_.addAttribute( 'accelerationEndSize', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, ACCELERATION_END_SIZE_IDX));
+		this.particleBuffer_.addAttribute( 'spinStartSpinSpeed', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, SPIN_START_SPIN_SPEED_IDX));
+		this.particleBuffer_.addAttribute( 'orientation', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, ORIENTATION_IDX));
+		this.particleBuffer_.addAttribute( 'colorMult', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, COLOR_MULT_IDX));
+
+		//TODO Fix boundingSphere
+		this.particleBuffer_.boundingSphere = new THREE.Sphere();
+
+		var uniforms = {
+
+			world: { type: 'm4', value: this.matrixWorld },
+			viewInverse: { type: 'm4', value: this.particleSystem.camera.matrixWorld },
+			worldVelocity: { type: 'v3', value: null },
+			worldAcceleration: { type: 'v3', value: null },
+			timeRange: { type: 'f', value: null },
+			time: { type: 'f', value: null },
+			timeOffset: { type: 'f', value: null },
+			frameDuration: { type: 'f', value: null },
+			numFrames: { type: 'f', value: null },
+			rampSampler: { type: "t", value: this.rampTexture_ },
+			colorSampler: { type: "t", value: this.colorTexture_ }
+
+		};
+
+		var material = new THREE.ShaderMaterial({
+
+			uniforms: uniforms,
+			vertexShader: ( parameters.billboard ) ? billboardParticleInstancedVertexShader : orientedParticleInstancedVertexShader,
+			fragmentShader: particleFragmentShader,
+			side: (this.billboard_)? THREE.DoubleSide:THREE.FrontSide,
+			blending: this.blendFunc_,
+			depthTest: true,
+			depthWrite: false,
+			transparent: true
+
+		});
 
 
-					this.geometry = this.particleBuffer_;
-					this.material = material;
+		this.geometry = this.particleBuffer_;
+		this.material = material;
 
-    }
+	}
 
-			};
+};
 
 ParticleEmitter.prototype.setParameters = function ( parameters, opt_perParticleParamSetter ) {
 
-        this.validateParameters( parameters );
+	this.validateParameters ( parameters );
 
-        var numParticles = parameters.numParticles;
+	var numParticles = parameters.numParticles;
 
-        this.allocateParticles_( numParticles, parameters );
-        this.createParticles_(
-            0,
-            numParticles,
-            parameters,
-            opt_perParticleParamSetter );
+	this.allocateParticles_ ( numParticles, parameters );
+	this.createParticles_ ( 0, numParticles, parameters, opt_perParticleParamSetter );
 
-							}
+};
 
 ParticleEmitter.prototype.draw = function ( world, viewProjection, timeOffset ) {
 
-					//var uniforms = this.mesh.material.uniforms;
-					var uniforms = this.material.uniforms;
-					if ( world !== undefined ) {
+	var uniforms = this.material.uniforms;
 
-						uniforms.world.value = world;
+	if ( world !== undefined ) {
 
-					}
+		uniforms.world.value = world;
 
+	}
 
-					var curTime = this.timeSource_();
-					uniforms.time.value = curTime;
-					uniforms.timeOffset.value = timeOffset;
+	uniforms.time.value = this.timeSource_();
+	uniforms.timeOffset.value = timeOffset;
 
-    }
+};
 
-ParticleEmitter.prototype.createOneShot = function() {
+ParticleEmitter.prototype.createOneShot = function () {
 
-        return new OneShot( this,this.particleSystem.scene );
+	return new OneShot( this, this.particleSystem.scene );
 
-							}
+};
 
-ParticleEmitter.prototype.clone = function  ( object ) {
+ParticleEmitter.prototype.clone = function ( object ) {
 
-					if ( object === undefined ) object = this.particleSystem.createParticleEmitter( this.colorTexture_, this.timeSource_ );//new ParticleEmitter(this.particleSystem,this.colorTexture_,this.timeSource_);
-					object.geometry = this.geometry;
-					object.material = this.material.clone();
-					object.material.uniforms.world.value = this.matrixWorld;
-					object.material.uniforms.viewInverse.value = this.particleSystem.camera.matrixWorld;
-					object.material.uniforms.rampSampler.value = this.rampTexture_;
-					object.material.uniforms.colorSampler.value = this.colorTexture_;
-					THREE.Mesh.prototype.clone.call( this, object );
-					return object;
+	if ( object === undefined ) object = this.particleSystem.createParticleEmitter( this.colorTexture_, this.timeSource_);
 
-    }
+	object.geometry = this.geometry;
+	object.material = this.material.clone();
+	object.material.uniforms.world.value = this.matrixWorld;
+	object.material.uniforms.viewInverse.value = this.particleSystem.camera.matrixWorld;
+	object.material.uniforms.rampSampler.value = this.rampTexture_;
+	object.material.uniforms.colorSampler.value = this.colorTexture_;
+
+	THREE.Mesh.prototype.clone.call( this, object );
+
+	return object;
+
+};
+
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
 
 function Trail ( particleSystem, maxParticles, parameters, opt_texture, opt_perParticleParamSetter, opt_clock ) {
 
@@ -553,6 +557,9 @@ Trail.prototype.birthParticles = function ( position ) {
 
 };
 
+// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
+// ported to three.js by fazeaction
+
 function ParticleSystem ( scene, camera, opt_clock, opt_randomFunction ) {
 
 	this.scene = scene;
@@ -599,7 +606,7 @@ function ParticleSystem ( scene, camera, opt_clock, opt_randomFunction ) {
 	this.defaultColorTexture = colorTexture;
 	this.defaultRampTexture = rampTexture;
 
-};
+}
 
 ParticleSystem.prototype.createTextureFromFloats = function ( width, height, pixels, opt_texture ) {
 
@@ -611,14 +618,15 @@ ParticleSystem.prototype.createTextureFromFloats = function ( width, height, pix
 	} else {
 
 		var data = new Uint8Array( pixels.length );
+		var t;
 		for ( var i = 0; i < pixels.length; i ++ ) {
 
-			var t = pixels[ i ] * 255.;
+			t = pixels[ i ] * 255.;
 			data[ i ] = t;
 
 		}
 
-		var texture = new THREE.DataTexture( data, width, height, THREE.RGBAFormat );
+		texture = new THREE.DataTexture( data, width, height, THREE.RGBAFormat );
 		texture.minFilter = THREE.LinearFilter;
 		texture.magFilter = THREE.LinearFilter;
 		texture.needsUpdate = true;
@@ -672,522 +680,587 @@ var g_poofIndex = 0;
 var MAX_POOFS = 3;
 var g_trail;
 var g_trailParameters;
-var g_keyDown=[];
+var g_keyDown = [];
 
 init();
 animate();
 
-function getEventKeyChar (event) {
-    if (!event) {
-        event = window.event;
-    }
-    var charCode = 0;
-    if (event.keyIdentifierToChar)
-        charCode = o3djs.event.keyIdentifierToChar(event.keyIdentifier);
-    if (!charCode)
-        charCode = (window.event) ? window.event.keyCode : event.charCode;
-    if (!charCode)
-        charCode = event.keyCode;
-    return charCode;
-};
+function getEventKeyChar( event ) {
 
-function onKeyPress(event) {
-    event = event || window.event;
-    var keyChar = String.fromCharCode(getEventKeyChar(event));
-    // Just in case they have capslock on.
-    keyChar = keyChar.toLowerCase();
+	if ( ! event ) {
 
-    switch (keyChar) {
-        case 'p':
-            triggerPoof();
-            break;
-        /*case 't':
-         leaveTrail();
-         break;*/
-    }
+		event = window.event;
+
+	}
+
+	var charCode = 0;
+
+	if ( ! charCode ) charCode = ( window.event ) ? window.event.keyCode : event.charCode;
+
+	if ( ! charCode ) charCode = event.keyCode;
+
+	return charCode;
+
 }
 
-function onKeyDown(event) {
-    event = event || window.event;
-    g_keyDown[event.keyCode] = true;
+function onKeyPress( event ) {
+
+	event = event || window.event;
+	var keyChar = String.fromCharCode( getEventKeyChar( event ) );
+
+	keyChar = keyChar.toLowerCase();
+
+	switch ( keyChar ) {
+		case 'p':
+			triggerPoof();
+			break;
+	}
+
 }
 
-function onKeyUp(event) {
-    event = event || window.event;
-    g_keyDown[event.keyCode] = false;
+function onKeyDown( event ) {
+
+	event = event || window.event;
+	g_keyDown[ event.keyCode ] = true;
+
 }
 
+function onKeyUp( event ) {
+
+	event = event || window.event;
+	g_keyDown[ event.keyCode ] = false;
+
+}
 
 function init() {
 
-    container = document.getElementById('container');
+	container = document.getElementById( 'container' );
 
-    //
+	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+	camera.position.set( 0, 5, 15 );
 
-    camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 5000);
-    camera.position.set(0,5,15);
+	scene = new THREE.Scene();
 
-    scene = new THREE.Scene();
-    //scene.fog = new THREE.Fog(0xCCCCCC, 2000, 3500);
+	scene.add( new THREE.AmbientLight( 0x444444 ) );
 
-    //
+	var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	light1.position.set( 1, 1, 1 );
+	scene.add( light1 );
 
-    scene.add(new THREE.AmbientLight(0x444444));
+	var light2 = new THREE.DirectionalLight( 0xffffff, 1.5 );
+	light2.position.set( 0, - 1, 0 );
+	scene.add( light2 );
 
-    var light1 = new THREE.DirectionalLight(0xffffff, 0.5);
-    light1.position.set(1, 1, 1);
-    scene.add(light1);
-
-    var light2 = new THREE.DirectionalLight(0xffffff, 1.5);
-    light2.position.set(0, -1, 0);
-    scene.add(light2);
-
-    //
-    //scene.add(new THREE.Mesh(new THREE.SphereGeometry(2,32,32),new THREE.MeshBasicMaterial({color:0x231232})))
-    particleSystem = new ParticleSystem(scene,camera);
-    setupFlame(particleSystem);
-    setupNaturalGasFlame(particleSystem);
-    setupSmoke(particleSystem);
-    setupWhiteEnergy(particleSystem);
-    setupRipples(particleSystem);
-    setupText(particleSystem);
-    setupRain(particleSystem);
-    setupAnim(particleSystem);
-    setupBall(particleSystem);
-    setupCube(particleSystem);
-    setupPoof(particleSystem);
-    setupTrail(particleSystem);
+	particleSystem = new ParticleSystem( scene, camera );
+	setupFlame( particleSystem );
+	setupNaturalGasFlame( particleSystem );
+	setupSmoke( particleSystem );
+	setupWhiteEnergy( particleSystem );
+	setupRipples( particleSystem );
+	setupText( particleSystem );
+	setupRain( particleSystem );
+	setupAnim( particleSystem );
+	setupBall( particleSystem );
+	setupCube( particleSystem );
+	setupPoof( particleSystem );
+	setupTrail( particleSystem );
 
 
+	renderer = new THREE.WebGLRenderer( { antialias: false } );
+	renderer.setClearColor( 0x7D7D7D, 1 );
+	renderer.setSize( window.innerWidth, window.innerHeight );
 
+	renderer.gammaInput = true;
+	renderer.gammaOutput = true;
 
-    renderer = new THREE.WebGLRenderer({ antialias: false });
-    renderer.setClearColor(0x7D7D7D, 1);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+	container.appendChild( renderer.domElement );
 
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.top = '0px';
+	container.appendChild( stats.domElement );
 
-    container.appendChild(renderer.domElement);
-
-    //
-
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    container.appendChild(stats.domElement);
-
-    //
-    document.onkeypress = onKeyPress;
-    document.onkeydown = onKeyDown;
-    document.onkeyup = onKeyUp;
-    window.addEventListener('resize', onWindowResize, false);
+	document.onkeypress = onKeyPress;
+	document.onkeydown = onKeyDown;
+	document.onkeyup = onKeyUp;
+	window.addEventListener( 'resize', onWindowResize, false );
 
 }
 
-function setupFlame(particleSystem) {
-    var emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(0, 0, 0);
-    emitter.setState(THREE.AdditiveBlending);
-    emitter.setColorRamp(
-        [1, 1, 0, 1,
-            1, 0, 0, 1,
-            1, 0, 0, 1,
-            1, 0, 0, 0.5,
-            0, 0, 0, 0]);
-    emitter.setParameters({
-        numParticles:   20,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 0.5,
-        endSize: 0.9,
-        velocity:[0, 0.60, 0], velocityRange: [0.15, 0.15, 0.15],
-        worldAcceleration: [0, -0.20, 0],
-        spinSpeedRange: 4});
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+function setupFlame( particleSystem ) {
+
+	var emitter = particleSystem.createParticleEmitter();
+	emitter.setTranslation( 0, 0, 0 );
+	emitter.setState( THREE.AdditiveBlending );
+	emitter.setColorRamp(
+		[
+			1, 1, 0, 1,
+			1, 0, 0, 1,
+			1, 0, 0, 1,
+			1, 0, 0, 0.5,
+			0, 0, 0, 0
+		]
+	);
+	emitter.setParameters( {
+		numParticles: 20,
+		lifeTime: 2,
+		timeRange: 2,
+		startSize: 0.5,
+		endSize: 0.9,
+		velocity: [ 0, 0.60, 0 ], velocityRange: [ 0.15, 0.15, 0.15 ],
+		worldAcceleration: [ 0, - 0.20, 0 ],
+		spinSpeedRange: 4
+	} );
+
+	scene.add( emitter );
 
 }
 
-function setupNaturalGasFlame(particleSystem) {
-    var emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(-2, 0, 0);
-    emitter.setState(THREE.AdditiveBlending);
-    emitter.setColorRamp(
-        [0.2, 0.2, 1, 1,
-            0, 0, 1, 1,
-            0, 0, 1, 0.5,
-            0, 0, 1, 0]);
-    emitter.setParameters({
-        numParticles: 20,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 0.5,
-        endSize: 0.2,
-        velocity:[0, 0.60, 0],
-        worldAcceleration: [0, -0.20, 0],
-        spinSpeedRange: 4});
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+function setupNaturalGasFlame( particleSystem ) {
+
+	var emitter = particleSystem.createParticleEmitter();
+	emitter.setTranslation( - 2, 0, 0 );
+	emitter.setState( THREE.AdditiveBlending );
+	emitter.setColorRamp(
+		[
+			0.2, 0.2, 1, 1,
+			0, 0, 1, 1,
+			0, 0, 1, 0.5,
+			0, 0, 1, 0
+		]
+	);
+	emitter.setParameters( {
+		numParticles: 20,
+		lifeTime: 2,
+		timeRange: 2,
+		startSize: 0.5,
+		endSize: 0.2,
+		velocity: [ 0, 0.60, 0 ],
+		worldAcceleration: [ 0, - 0.20, 0 ],
+		spinSpeedRange: 4
+	} );
+
+	scene.add( emitter );
+
 }
 
-function setupSmoke(particleSystem) {
-    var emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(-1, 0, 0);
-    emitter.setState(THREE.NormalBlending);
-    emitter.setColorRamp(
-        [0, 0, 0, 1,
-            0, 0, 0, 0]);
-    emitter.setParameters({
-        numParticles: 20,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 1,
-        endSize: 1.5,
-        velocity: [0, 2, 0], velocityRange: [0.2, 0, 0.2],
-        worldAcceleration: [0, -0.25, 0],
-        spinSpeedRange: 4});
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+function setupSmoke( particleSystem ) {
+
+	var emitter = particleSystem.createParticleEmitter();
+	emitter.setTranslation( - 1, 0, 0 );
+	emitter.setState( THREE.NormalBlending );
+	emitter.setColorRamp(
+		[
+			0, 0, 0, 1,
+			0, 0, 0, 0
+		]
+	);
+	emitter.setParameters( {
+		numParticles: 20,
+		lifeTime: 2,
+		timeRange: 2,
+		startSize: 1,
+		endSize: 1.5,
+		velocity: [ 0, 2, 0 ], velocityRange: [ 0.2, 0, 0.2 ],
+		worldAcceleration: [ 0, - 0.25, 0 ],
+		spinSpeedRange: 4
+	} );
+
+	scene.add( emitter );
+
 }
 
-function setupWhiteEnergy(particleSystem) {
-    var emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(0, 0, 0);
-    emitter.setState(THREE.AdditiveBlending);
-    emitter.setColorRamp(
-        [1, 1, 1, 1,
-            1, 1, 1, 0]);
-    emitter.setParameters({
-        numParticles: 80,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 1,
-        endSize: 1,
-        positionRange: [1, 0, 1],
-        velocityRange: [0.20, 0, 0.20]});
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+function setupWhiteEnergy( particleSystem ) {
+
+	var emitter = particleSystem.createParticleEmitter();
+	emitter.setTranslation( 0, 0, 0 );
+	emitter.setState( THREE.AdditiveBlending );
+	emitter.setColorRamp(
+		[
+			1, 1, 1, 1,
+			1, 1, 1, 0
+		]
+	);
+	emitter.setParameters( {
+		numParticles: 80,
+		lifeTime: 2,
+		timeRange: 2,
+		startSize: 1,
+		endSize: 1,
+		positionRange: [ 1, 0, 1 ],
+		velocityRange: [ 0.20, 0, 0.20 ]
+	} );
+
+	scene.add( emitter );
+
 }
 
-function setupRipples(particleSystem) {
-    var texture = new THREE.TextureLoader().load( 'textures/ripple.png');
-    texture.minFilter=THREE.LinearMipMapLinearFilter;
-    texture.magFilter=THREE.LinearFilter;
-    var emitter = particleSystem.createParticleEmitter(texture);
-    emitter.setTranslation(-2, 0, 3);
-    emitter.setState(THREE.NormalBlending);
-    emitter.setColorRamp(
-        [0.7, 0.8, 1, 1,
-            1, 1, 1, 0]);
-    emitter.setParameters({
-        numParticles: 20,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 0.5,
-        endSize: 2,
-        positionRange: [1, 0, 1],
-        billboard: false});
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+function setupRipples( particleSystem ) {
+
+	var texture = new THREE.TextureLoader().load( 'textures/ripple.png' );
+	texture.minFilter = THREE.LinearMipMapLinearFilter;
+	texture.magFilter = THREE.LinearFilter;
+	var emitter = particleSystem.createParticleEmitter( texture );
+	emitter.setTranslation( - 2, 0, 3 );
+	emitter.setState( THREE.NormalBlending );
+	emitter.setColorRamp(
+		[
+			0.7, 0.8, 1, 1,
+			1, 1, 1, 0
+		]
+	);
+	emitter.setParameters( {
+		numParticles: 20,
+		lifeTime: 2,
+		timeRange: 2,
+		startSize: 0.5,
+		endSize: 2,
+		positionRange: [ 1, 0, 1 ],
+		billboard: false
+	} );
+
+	scene.add( emitter );
+
 }
 
-function setupText(particleSystem) {
-    var image = [
-        'X.....X..XXXXXX..XXXXX....XXXX...X....',
-        'X.....X..X.......X....X..X.......X....',
-        'X..X..X..XXXXX...XXXXX...X..XXX..X....',
-        'X..X..X..X.......X....X..X....X..X....',
-        '.XX.XX...XXXXXX..XXXXX....XXXX...XXXXX'];
-    var height = image.length;
-    var width = image[0].length;
+function setupText( particleSystem ) {
 
-    // Make an array of positions based on the text image.
-    var positions = [];
-    for (var yy = 0; yy < height; ++yy) {
-        for (var xx = 0; xx < width; ++xx) {
-            if (image[yy].substring(xx, xx + 1) == 'X') {
-                positions.push([(xx - width * 0.5) * 0.10,
-                    -(yy - height * 0.5) * 0.10]);
-            }
-        }
-    }
-    var emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(2, 2, 0);
-    emitter.setState(THREE.AdditiveBlending);
-    emitter.setColorRamp(
-        [1, 0, 0, 1,
-            0, 1, 0, 1,
-            0, 0, 1, 1,
-            1, 1, 0, 0]);
-    emitter.setParameters({
-            numParticles: positions.length * 4,
-            lifeTime: 2,
-            timeRange: 2,
-            startSize: 0.25,
-            endSize: 0.5,
-            positionRange: [0.02, 0, 0.02],
-            velocity: [0.01, 0, 0.01]},
-        function(particleIndex, parameters) {
-            //var index = particleIndex;
-            var index = Math.floor(Math.random() * positions.length);
-            index = Math.min(index, positions.length - 1);
-            parameters.position[0] = positions[index][0];
-            parameters.position[1] = positions[index][1];
-        });
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+	var image = [
+		'X.....X..XXXXXX..XXXXX....XXXX...X....',
+		'X.....X..X.......X....X..X.......X....',
+		'X..X..X..XXXXX...XXXXX...X..XXX..X....',
+		'X..X..X..X.......X....X..X....X..X....',
+		'.XX.XX...XXXXXX..XXXXX....XXXX...XXXXX' ];
+
+	var height = image.length;
+	var width = image[ 0 ].length;
+
+	// Make an array of positions based on the text image.
+	var positions = [];
+	for ( var yy = 0; yy < height; ++ yy ) {
+
+		for ( var xx = 0; xx < width; ++ xx ) {
+
+			if ( image[ yy ].substring( xx, xx + 1 ) == 'X' ) {
+
+				positions.push( [ ( xx - width * 0.5 ) * 0.10,
+					- ( yy - height * 0.5 ) * 0.10 ] );
+
+			}
+
+		}
+
+	}
+	var emitter = particleSystem.createParticleEmitter();
+	emitter.setTranslation( 2, 2, 0 );
+	emitter.setState( THREE.AdditiveBlending );
+	emitter.setColorRamp(
+		[
+			1, 0, 0, 1,
+			0, 1, 0, 1,
+			0, 0, 1, 1,
+			1, 1, 0, 0
+		]
+	);
+	emitter.setParameters( {
+			numParticles: positions.length * 4,
+			lifeTime: 2,
+			timeRange: 2,
+			startSize: 0.25,
+			endSize: 0.5,
+			positionRange: [ 0.02, 0, 0.02 ],
+			velocity: [ 0.01, 0, 0.01 ]
+		},
+		function ( particleIndex, parameters ) {
+
+			var index = Math.floor( Math.random() * positions.length );
+			index = Math.min( index, positions.length - 1 );
+			parameters.position[ 0 ] = positions[ index ][ 0 ];
+			parameters.position[ 1 ] = positions[ index ][ 1 ];
+
+		} );
+
+	scene.add( emitter );
+
 }
 
-function setupRain(particleSystem) {
-    var emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(2, 2, 0);
-    emitter.setState(THREE.NormalBlending);
-    emitter.setColorRamp(
-        [0.2, 0.2, 1, 1]);
-    emitter.setParameters({
-        numParticles: 80,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 0.05,
-        endSize: 0.05,
-        positionRange: [1, 0, 1],
-        velocity: [0,-1.5,0]});
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+function setupRain( particleSystem ) {
+
+	var emitter = particleSystem.createParticleEmitter();
+	emitter.setTranslation( 2, 2, 0 );
+	emitter.setState( THREE.NormalBlending );
+	emitter.setColorRamp( [ 0.2, 0.2, 1, 1 ] );
+	emitter.setParameters( {
+		numParticles: 80,
+		lifeTime: 2,
+		timeRange: 2,
+		startSize: 0.05,
+		endSize: 0.05,
+		positionRange: [ 1, 0, 1 ],
+		velocity: [ 0, - 1.5, 0 ]
+	} );
+
+	scene.add( emitter );
+
 }
 
-function setupAnim(particleSystem) {
-    var emitter = particleSystem.createParticleEmitter(new THREE.TextureLoader().load( 'textures/particle-anim.png'));
-    emitter.setTranslation(3, 0, 0);
-    emitter.setColorRamp(
-        [1, 1, 1, 1,
-            1, 1, 1, 1,
-            1, 1, 1, 0]);
-    emitter.setParameters({
-        numParticles: 20,
-        numFrames: 8,
-        frameDuration: 0.25,
-        frameStartRange: 8,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 0.5,
-        endSize: 0.9,
-        positionRange: [0.1, 0.1, 0.1],
-        velocity:[0, 2, 0], velocityRange: [0.75, 0.15, 0.75],
-        acceleration: [0, -1.5, 0],
-        spinSpeedRange: 1});
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+function setupAnim( particleSystem ) {
+
+	var emitter = particleSystem.createParticleEmitter( new THREE.TextureLoader().load( 'textures/particle-anim.png' ) );
+	emitter.setTranslation( 3, 0, 0 );
+	emitter.setColorRamp(
+		[
+			1, 1, 1, 1,
+			1, 1, 1, 1,
+			1, 1, 1, 0
+		]
+	);
+	emitter.setParameters( {
+		numParticles: 20,
+		numFrames: 8,
+		frameDuration: 0.25,
+		frameStartRange: 8,
+		lifeTime: 2,
+		timeRange: 2,
+		startSize: 0.5,
+		endSize: 0.9,
+		positionRange: [ 0.1, 0.1, 0.1 ],
+		velocity: [ 0, 2, 0 ], velocityRange: [ 0.75, 0.15, 0.75 ],
+		acceleration: [ 0, - 1.5, 0 ],
+		spinSpeedRange: 1
+	} );
+
+	scene.add( emitter );
+
 }
 
-function setupBall(particleSystem) {
-    var texture =new THREE.TextureLoader().load( 'textures/ripple.png');
-    texture.minFilter=THREE.LinearMipMapLinearFilter;
-    texture.magFilter=THREE.LinearFilter;
-    var emitter = particleSystem.createParticleEmitter(texture);
-    emitter.setTranslation(-4, 0, -2);
-    emitter.setState(THREE.NormalBlending);
-    emitter.setColorRamp([1, 1, 1, 1,
-        1, 1, 1, 0]);
-    emitter.setParameters({
-            numParticles: 300,
-            lifeTime: 2,
-            timeRange: 2,
-            startSize: 0.1,
-            endSize: 0.5,
-            colorMult: [1, 1, 0.5, 1], colorMultRange: [0, 0, 0.5, 0],
-            billboard: false},
-        function(particleIndex, parameters) {
-            var matrix = new THREE.Matrix4();
-            var matrix2 = new THREE.Matrix4();
+function setupBall( particleSystem ) {
 
-            matrix.makeRotationY(Math.random() * Math.PI * 2);
-            matrix2.makeRotationX(Math.random() * Math.PI);
-            matrix.multiply(matrix2);
-            var position = new THREE.Vector3(0,1,0);
-            position.transformDirection(matrix);
+	var texture = new THREE.TextureLoader().load( 'textures/ripple.png' );
+	texture.minFilter = THREE.LinearMipMapLinearFilter;
+	texture.magFilter = THREE.LinearFilter;
 
-            parameters.position = [position.x,position.y,position.z];
-            var q=new THREE.Quaternion();
-            q.setFromRotationMatrix(matrix);
-            parameters.orientation = [q.x, q.y, q.z, q.w];
-        });
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+	var emitter = particleSystem.createParticleEmitter( texture );
+	emitter.setTranslation( - 4, 0, - 2 );
+	emitter.setState( THREE.NormalBlending );
+	emitter.setColorRamp(
+		[
+			1, 1, 1, 1,
+			1, 1, 1, 0
+		]
+	);
+	emitter.setParameters( {
+			numParticles: 300,
+			lifeTime: 2,
+			timeRange: 2,
+			startSize: 0.1,
+			endSize: 0.5,
+			colorMult: [ 1, 1, 0.5, 1 ], colorMultRange: [ 0, 0, 0.5, 0 ],
+			billboard: false
+		},
+		function ( particleIndex, parameters ) {
+
+			var matrix = new THREE.Matrix4();
+			var matrix2 = new THREE.Matrix4();
+
+			matrix.makeRotationY( Math.random() * Math.PI * 2 );
+			matrix2.makeRotationX( Math.random() * Math.PI );
+			matrix.multiply( matrix2 );
+			var position = new THREE.Vector3( 0, 1, 0 );
+			position.transformDirection( matrix );
+
+			parameters.position = [ position.x, position.y, position.z ];
+			var q = new THREE.Quaternion();
+			q.setFromRotationMatrix( matrix );
+			parameters.orientation = [ q.x, q.y, q.z, q.w ];
+
+		} );
+
+	scene.add( emitter );
+
 }
 
 
-function setupCube(particleSystem) {
-    var texture= new THREE.TextureLoader().load( 'textures/ripple.png')
-    texture.minFilter=THREE.LinearMipMapLinearFilter;
-    texture.magFilter=THREE.LinearFilter;
-    var emitter = particleSystem.createParticleEmitter(texture);
-    emitter.setTranslation(2, 0, -3);
-    emitter.setState(THREE.AdditiveBlending);
-    emitter.setColorRamp(
-        [1, 1, 1, 1,
-            0, 0, 1, 1,
-            1, 1, 1, 0]);
-    emitter.setParameters({
-            numParticles: 300,
-            lifeTime: 2,
-            timeRange: 2,
-            startSize: 0.1,
-            endSize: 0.5,
-            colorMult: [0.8, 0.9, 1, 1],
-            billboard: false},
-        function(particleIndex, parameters) {
-            var matrix = new THREE.Matrix4();
-            var matrix2 = new THREE.Matrix4();
+function setupCube( particleSystem ) {
 
-            matrix.makeRotationY(Math.floor(Math.random() * 4) * Math.PI * 0.5);
-            matrix2.makeRotationX(Math.floor(Math.random() * 3) * Math.PI * 0.5);
-            matrix.multiply(matrix2);
+	var texture = new THREE.TextureLoader().load( 'textures/ripple.png' );
+	texture.minFilter = THREE.LinearMipMapLinearFilter;
+	texture.magFilter = THREE.LinearFilter;
 
-            var q=new THREE.Quaternion();
-            q.setFromRotationMatrix(matrix);
-            parameters.orientation = [q.x, q.y, q.z, q.w];
+	var emitter = particleSystem.createParticleEmitter( texture );
+	emitter.setTranslation( 2, 0, - 3 );
+	emitter.setState( THREE.AdditiveBlending );
+	emitter.setColorRamp(
+		[
+			1, 1, 1, 1,
+			0, 0, 1, 1,
+			1, 1, 1, 0
+		]
+	);
+	emitter.setParameters( {
+			numParticles: 300,
+			lifeTime: 2,
+			timeRange: 2,
+			startSize: 0.1,
+			endSize: 0.5,
+			colorMult: [ 0.8, 0.9, 1, 1 ],
+			billboard: false
+		},
+		function ( particleIndex, parameters ) {
 
-            var position = new THREE.Vector3(Math.random() * 2 - 1,1,Math.random() * 2 - 1);
-            var len=position.length();
-            position.transformDirection(matrix);
-            parameters.position = [position.x*len,position.y*len,position.z*len];
+			var matrix = new THREE.Matrix4();
+			var matrix2 = new THREE.Matrix4();
 
-        });
-    /*function(particleIndex, parameters) {
-     var matrix = g_math.matrix4.rotationY(
-     Math.floor(Math.random() * 4) * Math.PI * 0.5);
-     g_math.matrix4.rotateX(matrix,
-     Math.floor(Math.random() * 3) * Math.PI * 0.5);
-     parameters.orientation = o3djs.quaternions.rotationToQuaternion(matrix);
-     var position = g_math.matrix4.transformDirection(
-     matrix,
-     [Math.random() * 2 - 1, 1, Math.random() * 2 - 1]);
-     parameters.position = position;
-     });*/
-    //scene.add(emitter.mesh);
-    scene.add(emitter);
+			matrix.makeRotationY( Math.floor( Math.random() * 4 ) * Math.PI * 0.5 );
+			matrix2.makeRotationX( Math.floor( Math.random() * 3 ) * Math.PI * 0.5 );
+			matrix.multiply( matrix2 );
+
+			var q = new THREE.Quaternion();
+			q.setFromRotationMatrix( matrix );
+			parameters.orientation = [ q.x, q.y, q.z, q.w ];
+
+			var position = new THREE.Vector3( Math.random() * 2 - 1, 1, Math.random() * 2 - 1 );
+			var len = position.length();
+			position.transformDirection( matrix );
+			parameters.position = [ position.x * len, position.y * len, position.z * len ];
+
+		} );
+
+	scene.add( emitter );
+
 }
 
-function setupPoof(particleSystem) {
-    var emitter = particleSystem.createParticleEmitter();
-    emitter.setState(THREE.AdditiveBlending);
-    emitter.setColorRamp(
-        [1, 1, 1, 0.3,
-            1, 1, 1, 0]);
-    emitter.setParameters({
-            numParticles: 30,
-            lifeTime: 1.5,
-            startTime: 0,
-            startSize: 0.50,
-            endSize: 2,
-            spinSpeedRange: 10,
-            billboard: true
-        },
-        function(index, parameters) {
-            var matrix = new THREE.Matrix4();
-            var angle = Math.random() * 2 * Math.PI;
-            matrix.makeRotationY(angle);
-            var position = new THREE.Vector3(3,0,0);
-            var len=position.length();
-            position.transformDirection(matrix);
-            parameters.velocity =[position.x*len,position.y*len,position.z*len];
-            var acc=new THREE.Vector3(-0.3, 0, -0.3).multiply(position);
-            parameters.acceleration=[acc.x,acc.y,acc.z];
+function setupPoof( particleSystem ) {
 
-            /*parameters.velocity = g_math.matrix4.transformPoint(
-             g_math.matrix4.rotationY(angle), [300, 0, 0]);
-             parameters.acceleration = g_math.mulVectorVector(
-             parameters.velocity, [-0.3, 0, -0.3]);*/
-        });
-    // make 3 poofs one shots
-    for (var ii = 0; ii < MAX_POOFS; ++ii) {
-        g_poofs[ii] = emitter.createOneShot();
+	var emitter = particleSystem.createParticleEmitter();
+	emitter.setState( THREE.AdditiveBlending );
+	emitter.setColorRamp(
+		[
+			1, 1, 1, 0.3,
+			1, 1, 1, 0
+		]
+	);
+	emitter.setParameters( {
+			numParticles: 30,
+			lifeTime: 1.5,
+			startTime: 0,
+			startSize: 0.50,
+			endSize: 2,
+			spinSpeedRange: 10,
+			billboard: true
+		},
+		function ( index, parameters ) {
 
-    }
+			var matrix = new THREE.Matrix4();
+			var angle = Math.random() * 2 * Math.PI;
+			matrix.makeRotationY( angle );
+			var position = new THREE.Vector3( 3, 0, 0 );
+			var len = position.length();
+			position.transformDirection( matrix );
+			parameters.velocity = [ position.x * len, position.y * len, position.z * len ];
+			var acc = new THREE.Vector3( - 0.3, 0, - 0.3 ).multiply( position );
+			parameters.acceleration = [ acc.x, acc.y, acc.z ];
 
-    //
+		} );
+
+	// make 3 poofs one shots
+	for ( var ii = 0; ii < MAX_POOFS; ++ ii ) {
+
+		g_poofs[ ii ] = emitter.createOneShot();
+
+	}
+
 }
 
 function triggerPoof() {
-    // We have multiple poofs because if you only have one and it is still going
-    // when you trigger it a second time it will immediately start over.
-    g_poofs[g_poofIndex].trigger([1 + 1 * g_poofIndex, 0, 3]);
-    g_poofIndex++;
-    if (g_poofIndex == MAX_POOFS) {
-        g_poofIndex = 0;
-    }
+
+	// We have multiple poofs because if you only have one and it is still going
+	// when you trigger it a second time it will immediately start over.
+
+	g_poofs[ g_poofIndex ].trigger( [ 1 + g_poofIndex, 0, 3 ] );
+
+	g_poofIndex ++;
+
+	if ( g_poofIndex == MAX_POOFS ) {
+
+		g_poofIndex = 0;
+
+	}
+
 }
 
-function setupTrail(particleSystem) {
-    g_trailParameters = {
-        numParticles: 2,
-        lifeTime: 2,
-        startSize: 0.1,
-        endSize: 0.9,
-        velocityRange: [0.20, 0.20, 0.20],
-        spinSpeedRange: 0.04,
-        billboard: true
-    };
-    g_trail = particleSystem.createTrail(
-        1000   ,
-        g_trailParameters);
-    g_trail.setState(THREE.AdditiveBlending);
-    g_trail.setColorRamp(
-        [1, 0, 0, 1,
-            1, 1, 0, 1,
-            1, 1, 1, 0]);
+function setupTrail( particleSystem ) {
 
-    // scene.add(g_trail.mesh);
+	g_trailParameters = {
+		numParticles: 2,
+		lifeTime: 2,
+		startSize: 0.1,
+		endSize: 0.9,
+		velocityRange: [ 0.20, 0.20, 0.20 ],
+		spinSpeedRange: 0.04,
+		billboard: true
+	};
+
+	g_trail = particleSystem.createTrail(
+		1000,
+		g_trailParameters );
+
+	g_trail.setState( THREE.AdditiveBlending );
+
+	g_trail.setColorRamp(
+		[
+			1, 0, 0, 1,
+			1, 1, 0, 1,
+			1, 1, 1, 0
+		]
+	);
+
 }
 
 function leaveTrail() {
 
-    var trailClock = (new Date().getTime() / 1000.0) * -0.8;
-    g_trail.birthParticles(
-        [Math.sin(trailClock) * 4, 2, Math.cos(trailClock) * 4]);
+	var trailClock = ( new Date().getTime() / 1000.0 ) * - 0.8;
+	g_trail.birthParticles(
+		[ Math.sin( trailClock ) * 4, 2, Math.cos( trailClock ) * 4 ] );
+
 }
 
 
 function onWindowResize() {
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
 
-//
-
 function animate() {
 
-    requestAnimationFrame(animate);
+	requestAnimationFrame( animate );
 
-    render();
-    stats.update();
+	render();
+	stats.update();
 
 }
 
 function render() {
 
-    var time = Date.now() * 0.0005;
+	var time = Date.now() * 0.0005;
 
-    //mesh.rotation.x = time * 0.25;
-    //mesh.rotation.y = time * 0.5;
-    camera.position.z=Math.sin(-time)*15;
-    camera.position.x=Math.cos(-time)*15;
+	camera.position.z = Math.sin( - time ) * 15;
+	camera.position.x = Math.cos( - time ) * 15;
 
-    camera.position.y=5;
-    camera.lookAt(new THREE.Vector3(0,1,0));
+	camera.position.y = 5;
+	camera.lookAt( new THREE.Vector3( 0, 1, 0 ) );
 
-    if (g_keyDown[84]) {  // 'T' key.
-        leaveTrail();
-    }
+	if ( g_keyDown[ 84 ] ) {
+
+		leaveTrail();
+
+	}
 
 
-
-    particleSystem.draw()
-    renderer.render(scene, camera);
+	particleSystem.draw();
+	renderer.render( scene, camera );
 
 }
