@@ -40,7 +40,7 @@ OneShot.prototype.trigger = function ( opt_world ) {
 	}
 	if ( opt_world ) {
 
-		this.world_.setPosition( new THREE.Vector3().fromArray( opt_world ) );
+        this.emitter_.position.copy( new THREE.Vector3().fromArray( opt_world ) );
 
 	}
 	this.visible_ = true;

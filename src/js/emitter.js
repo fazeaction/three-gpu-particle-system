@@ -248,7 +248,7 @@ ParticleEmitter.prototype.allocateParticles_ = function ( numParticles, paramete
 		this.numParticles_ = numParticles;
 		this.interleavedBuffer = new THREE.InstancedInterleavedBuffer( new Float32Array( numParticles * Constants.singleParticleArray_.byteLength ), Constants.LAST_IDX, 1 ).setDynamic( true );
 
-		this.particleBuffer_.addAttribute( 'offset', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 3, Constants.POSITION_START_TIME_IDX));
+		this.particleBuffer_.addAttribute( 'position', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 3, Constants.POSITION_START_TIME_IDX));
 		this.particleBuffer_.addAttribute( 'startTime', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 1, 3));
 		this.particleBuffer_.addAttribute( 'uvLifeTimeFrameStart', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, Constants.UV_LIFE_TIME_FRAME_START_IDX));
 		this.particleBuffer_.addAttribute( 'velocityStartSize', new THREE.InterleavedBufferAttribute(this.interleavedBuffer, 4, Constants.VELOCITY_START_SIZE_IDX));
@@ -262,7 +262,7 @@ ParticleEmitter.prototype.allocateParticles_ = function ( numParticles, paramete
 
 		var uniforms = {
 
-			world: { type: 'm4', value: this.matrixWorld },
+			//world: { type: 'm4', value: this.matrixWorld },
 			viewInverse: { type: 'm4', value: this.particleSystem.camera.matrixWorld },
 			worldVelocity: { type: 'v3', value: null },
 			worldAcceleration: { type: 'v3', value: null },
@@ -312,12 +312,6 @@ ParticleEmitter.prototype.draw = function ( world, viewProjection, timeOffset ) 
 
 	var uniforms = this.material.uniforms;
 
-	if ( world !== undefined ) {
-
-		uniforms.world.value = world;
-
-	}
-
 	uniforms.time.value = this.timeSource_();
 	uniforms.timeOffset.value = timeOffset;
 
@@ -335,7 +329,6 @@ ParticleEmitter.prototype.clone = function ( object ) {
 
 	object.geometry = this.geometry;
 	object.material = this.material.clone();
-	object.material.uniforms.world.value = this.matrixWorld;
 	object.material.uniforms.viewInverse.value = this.particleSystem.camera.matrixWorld;
 	object.material.uniforms.rampSampler.value = this.rampTexture_;
 	object.material.uniforms.colorSampler.value = this.colorTexture_;

@@ -1,6 +1,5 @@
 // source: https://github.com/greggman/tdl/blob/master/tdl/particles.js#L154
 
-uniform mat4 world;
 uniform mat4 viewInverse;
 uniform vec3 worldVelocity;
 uniform vec3 worldAcceleration;
@@ -11,7 +10,6 @@ uniform float frameDuration;
 uniform float numFrames;
 
 // Incoming vertex attributes
-attribute vec3 offset;
 attribute vec4 uvLifeTimeFrameStart;
 attribute float startTime;
 attribute vec4 velocityStartSize;
@@ -27,10 +25,10 @@ varying vec4 outputColorMult;
 void main() {
     float lifeTime = uvLifeTimeFrameStart.z;
     float frameStart = uvLifeTimeFrameStart.w;
-    vec3 velocity = (world * vec4(velocityStartSize.xyz,
+    vec3 velocity = (modelMatrix * vec4(velocityStartSize.xyz,
                                  0.)).xyz + worldVelocity;
     float startSize = velocityStartSize.w;
-    vec3 acceleration = (world * vec4(accelerationEndSize.xyz,
+    vec3 acceleration = (modelMatrix * vec4(accelerationEndSize.xyz,
                                      0)).xyz + worldAcceleration;
     float endSize = accelerationEndSize.w;
     float spinStart = spinStartSpinSpeed.x;
@@ -49,6 +47,7 @@ void main() {
 
     vec3 basisX = viewInverse[0].xyz;
     vec3 basisZ = viewInverse[1].xyz;
+    vec4 vertexWorld = vec4(position, 1.0) * modelMatrix;
 
     float size = mix(startSize, endSize, percentLife);
     size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
@@ -59,9 +58,9 @@ void main() {
     vec3 localPosition = vec3(basisX * rotatedPoint.x + basisZ * rotatedPoint.y) * size +
                         velocity * localTime +
                         acceleration * localTime * localTime +
-                        position;
+                        vertexWorld.xyz;
 
     outputPercentLife = percentLife;
-    gl_Position = projectionMatrix * viewMatrix * vec4(localPosition + offset + world[3].xyz, 1.);
+    gl_Position = projectionMatrix * viewMatrix * vec4(localPosition + modelMatrix[3].xyz, 1.);
 
 }
