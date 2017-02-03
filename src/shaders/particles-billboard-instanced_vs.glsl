@@ -47,7 +47,7 @@ void main() {
 
     vec3 basisX = viewInverse[0].xyz;
     vec3 basisZ = viewInverse[1].xyz;
-    vec4 vertexWorld = vec4(position, 1.0) * modelMatrix;
+    vec4 vertexWorld = modelMatrix * vec4(position, 1.0);
 
     float size = mix(startSize, endSize, percentLife);
     size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
