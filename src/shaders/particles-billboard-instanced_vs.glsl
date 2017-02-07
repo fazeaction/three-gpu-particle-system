@@ -61,6 +61,6 @@ void main() {
                         vertexWorld.xyz;
 
     outputPercentLife = percentLife;
-    gl_Position = projectionMatrix * viewMatrix * vec4(localPosition + modelMatrix[3].xyz, 1.);
+    gl_Position = projectionMatrix * viewMatrix * vec4(localPosition, 1.);
 
 }
