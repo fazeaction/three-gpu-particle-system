@@ -212,7 +212,9 @@ ParticleEmitter.prototype.allocateParticles_ = function ( numParticles, paramete
 
 	if ( this.numParticles_ != numParticles ) {
 
-		if (THREE.BufferGeometry.MaxIndex < 65536) {
+        var numIndices = 6 * numParticles;
+
+		if (numIndices > 65536 && THREE.BufferGeometry.MaxIndex < 65536) {
 
 			throw "can't have more than 10922 particles per emitter";
 
