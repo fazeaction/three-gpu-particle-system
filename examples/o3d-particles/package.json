@@ -11,11 +11,11 @@
   "author": "fazeaction",
   "license": "ISC",
   "devDependencies": {
-    "rollup": "^0.34.8",
-    "rollup-plugin-node-resolve": "^2.0.0",
-    "rollup-plugin-serve": "^0.1.0",
-    "rollup-watch": "^2.5.0",
-    "three": "^0.81.2",
+    "rollup": "^0.67.3",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-serve": "^0.6.0",
+    "rollup-watch": "^4.3.1",
+    "three": "^0.98.0",
     "three-gpu-particle-system": "git+https://github.com/fazeaction/three-gpu-particle-system.git"
   }
 }

@@ -14,11 +14,14 @@ function glsl () {
 }
 
 export default {
-    entry: 'src/main.js',
-    dest: 'build/three-gpu-particle-system.js',
-    moduleName: 'THREE_GPU_ParticleSystem',
+    input: 'src/main.js',
+    output: {
+        format: 'umd',
+        name: 'THREE_GPU_ParticleSystem',
+        file: 'build/three-gpu-particle-system.js',
+        indent: '\t'
+    },
     globals: { 'three': 'three' },
-    format: 'umd',
     plugins: [
         glsl()
     ]

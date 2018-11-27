@@ -18,13 +18,19 @@ function glsl () {
 
 
 export default {
-    entry: './js/main.js',
-    dest: './build/bundle.js',
+    input: 'js/main.js',
+    output: {
+        file: 'build/bundle.js',
+        format: 'umd'
+    },
     plugins: [
         nodeResolve(),
         glsl(),
         serve({
-            port:8080
+            open: true,
+            contentBase:'',
+            host: 'localhost',
+            port: 8080,
         })
     ]
 };
