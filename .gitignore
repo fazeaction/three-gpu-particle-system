@@ -3,3 +3,4 @@
 .project
 node_modules
 .idea/
+examples/**/build

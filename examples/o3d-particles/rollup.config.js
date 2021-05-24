@@ -1,4 +1,4 @@
-import  nodeResolve from 'rollup-plugin-node-resolve';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import serve from 'rollup-plugin-serve';
 
 function glsl () {

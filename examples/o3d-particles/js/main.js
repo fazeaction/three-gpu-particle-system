@@ -1,4 +1,20 @@
-import { ParticleSystem } from 'three-gpu-particle-system'
+import {
+	PerspectiveCamera,
+	Scene,
+	AmbientLight,
+	DirectionalLight,
+	WebGLRenderer,
+	AdditiveBlending,
+	NormalBlending,
+	TextureLoader,
+	LinearMipMapLinearFilter,
+	LinearFilter,
+	Matrix4,
+	Vector3,
+	Quaternion
+} from 'three'
+import Stats from 'three/examples/jsm/libs/stats.module'
+import { ParticleSystem } from 'build/three-gpu-particle-system.module'
 
 var container, stats;
 
@@ -63,18 +79,18 @@ function init() {
 
 	container = document.getElementById( 'container' );
 
-	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+	camera = new PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
 	camera.position.set( 0, 5, 15 );
 
-	scene = new THREE.Scene();
+	scene = new Scene();
 
-	scene.add( new THREE.AmbientLight( 0x444444 ) );
+	scene.add( new AmbientLight( 0x444444 ) );
 
-	var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	var light1 = new DirectionalLight( 0xffffff, 0.5 );
 	light1.position.set( 1, 1, 1 );
 	scene.add( light1 );
 
-	var light2 = new THREE.DirectionalLight( 0xffffff, 1.5 );
+	var light2 = new DirectionalLight( 0xffffff, 1.5 );
 	light2.position.set( 0, - 1, 0 );
 	scene.add( light2 );
 
@@ -93,12 +109,9 @@ function init() {
 	setupTrail( particleSystem );
 
 
-	renderer = new THREE.WebGLRenderer( { antialias: false } );
+	renderer = new WebGLRenderer( { antialias: false } );
 	renderer.setClearColor( 0x7D7D7D, 1 );
 	renderer.setSize( window.innerWidth, window.innerHeight );
-
-	renderer.gammaInput = true;
-	renderer.gammaOutput = true;
 
 	container.appendChild( renderer.domElement );
 
@@ -118,7 +131,7 @@ function setupFlame( particleSystem ) {
 
 	var emitter = particleSystem.createParticleEmitter();
 	emitter.setTranslation( 0, 0, 0 );
-	emitter.setState( THREE.AdditiveBlending );
+	emitter.setState( AdditiveBlending );
 	emitter.setColorRamp(
 		[
 			1, 1, 0, 1,
@@ -147,7 +160,7 @@ function setupNaturalGasFlame( particleSystem ) {
 
 	var emitter = particleSystem.createParticleEmitter();
 	emitter.setTranslation( - 2, 0, 0 );
-	emitter.setState( THREE.AdditiveBlending );
+	emitter.setState( AdditiveBlending );
 	emitter.setColorRamp(
 		[
 			0.2, 0.2, 1, 1,
@@ -175,7 +188,7 @@ function setupSmoke( particleSystem ) {
 
 	var emitter = particleSystem.createParticleEmitter();
 	emitter.setTranslation( - 1, 0, 0 );
-	emitter.setState( THREE.NormalBlending );
+	emitter.setState( NormalBlending );
 	emitter.setColorRamp(
 		[
 			0, 0, 0, 1,
@@ -201,7 +214,7 @@ function setupWhiteEnergy( particleSystem ) {
 
 	var emitter = particleSystem.createParticleEmitter();
 	emitter.setTranslation( 0, 0, 0 );
-	emitter.setState( THREE.AdditiveBlending );
+	emitter.setState( AdditiveBlending );
 	emitter.setColorRamp(
 		[
 			1, 1, 1, 1,
@@ -224,12 +237,12 @@ function setupWhiteEnergy( particleSystem ) {
 
 function setupRipples( particleSystem ) {
 
-	var texture = new THREE.TextureLoader().load( 'textures/ripple.png' );
-	texture.minFilter = THREE.LinearMipMapLinearFilter;
-	texture.magFilter = THREE.LinearFilter;
+	var texture = new TextureLoader().load( 'textures/ripple.png' );
+	texture.minFilter = LinearMipMapLinearFilter;
+	texture.magFilter = LinearFilter;
 	var emitter = particleSystem.createParticleEmitter( texture );
 	emitter.setTranslation( - 2, 0, 3 );
-	emitter.setState( THREE.NormalBlending );
+	emitter.setState( NormalBlending );
 	emitter.setColorRamp(
 		[
 			0.7, 0.8, 1, 1,
@@ -280,7 +293,7 @@ function setupText( particleSystem ) {
 	}
 	var emitter = particleSystem.createParticleEmitter();
 	emitter.setTranslation( 2, 2, 0 );
-	emitter.setState( THREE.AdditiveBlending );
+	emitter.setState( AdditiveBlending );
 	emitter.setColorRamp(
 		[
 			1, 0, 0, 1,
@@ -315,7 +328,7 @@ function setupRain( particleSystem ) {
 
 	var emitter = particleSystem.createParticleEmitter();
 	emitter.setTranslation( 2, 2, 0 );
-	emitter.setState( THREE.NormalBlending );
+	emitter.setState( NormalBlending );
 	emitter.setColorRamp( [ 0.2, 0.2, 1, 1 ] );
 	emitter.setParameters( {
 		numParticles: 80,
@@ -333,7 +346,7 @@ function setupRain( particleSystem ) {
 
 function setupAnim( particleSystem ) {
 
-	var emitter = particleSystem.createParticleEmitter( new THREE.TextureLoader().load( 'textures/particle-anim.png' ) );
+	var emitter = particleSystem.createParticleEmitter( new TextureLoader().load( 'textures/particle-anim.png' ) );
 	emitter.setTranslation( 3, 0, 0 );
 	emitter.setColorRamp(
 		[
@@ -363,13 +376,13 @@ function setupAnim( particleSystem ) {
 
 function setupBall( particleSystem ) {
 
-	var texture = new THREE.TextureLoader().load( 'textures/ripple.png' );
-	texture.minFilter = THREE.LinearMipMapLinearFilter;
-	texture.magFilter = THREE.LinearFilter;
+	var texture = new TextureLoader().load( 'textures/ripple.png' );
+	texture.minFilter = LinearMipMapLinearFilter;
+	texture.magFilter = LinearFilter;
 
 	var emitter = particleSystem.createParticleEmitter( texture );
 	emitter.setTranslation( - 4, 0, - 2 );
-	emitter.setState( THREE.NormalBlending );
+	emitter.setState( NormalBlending );
 	emitter.setColorRamp(
 		[
 			1, 1, 1, 1,
@@ -387,17 +400,17 @@ function setupBall( particleSystem ) {
 		},
 		function ( particleIndex, parameters ) {
 
-			var matrix = new THREE.Matrix4();
-			var matrix2 = new THREE.Matrix4();
+			var matrix = new Matrix4();
+			var matrix2 = new Matrix4();
 
 			matrix.makeRotationY( Math.random() * Math.PI * 2 );
 			matrix2.makeRotationX( Math.random() * Math.PI );
 			matrix.multiply( matrix2 );
-			var position = new THREE.Vector3( 0, 1, 0 );
+			var position = new Vector3( 0, 1, 0 );
 			position.transformDirection( matrix );
 
 			parameters.position = [ position.x, position.y, position.z ];
-			var q = new THREE.Quaternion();
+			var q = new Quaternion();
 			q.setFromRotationMatrix( matrix );
 			parameters.orientation = [ q.x, q.y, q.z, q.w ];
 
@@ -410,13 +423,13 @@ function setupBall( particleSystem ) {
 
 function setupCube( particleSystem ) {
 
-	var texture = new THREE.TextureLoader().load( 'textures/ripple.png' );
-	texture.minFilter = THREE.LinearMipMapLinearFilter;
-	texture.magFilter = THREE.LinearFilter;
+	var texture = new TextureLoader().load( 'textures/ripple.png' );
+	texture.minFilter = LinearMipMapLinearFilter;
+	texture.magFilter = LinearFilter;
 
 	var emitter = particleSystem.createParticleEmitter( texture );
 	emitter.setTranslation( 2, 0, - 3 );
-	emitter.setState( THREE.AdditiveBlending );
+	emitter.setState( AdditiveBlending );
 	emitter.setColorRamp(
 		[
 			1, 1, 1, 1,
@@ -435,18 +448,18 @@ function setupCube( particleSystem ) {
 		},
 		function ( particleIndex, parameters ) {
 
-			var matrix = new THREE.Matrix4();
-			var matrix2 = new THREE.Matrix4();
+			var matrix = new Matrix4();
+			var matrix2 = new Matrix4();
 
 			matrix.makeRotationY( Math.floor( Math.random() * 4 ) * Math.PI * 0.5 );
 			matrix2.makeRotationX( Math.floor( Math.random() * 3 ) * Math.PI * 0.5 );
 			matrix.multiply( matrix2 );
 
-			var q = new THREE.Quaternion();
+			var q = new Quaternion();
 			q.setFromRotationMatrix( matrix );
 			parameters.orientation = [ q.x, q.y, q.z, q.w ];
 
-			var position = new THREE.Vector3( Math.random() * 2 - 1, 1, Math.random() * 2 - 1 );
+			var position = new Vector3( Math.random() * 2 - 1, 1, Math.random() * 2 - 1 );
 			var len = position.length();
 			position.transformDirection( matrix );
 			parameters.position = [ position.x * len, position.y * len, position.z * len ];
@@ -460,7 +473,7 @@ function setupCube( particleSystem ) {
 function setupPoof( particleSystem ) {
 
 	var emitter = particleSystem.createParticleEmitter();
-	emitter.setState( THREE.AdditiveBlending );
+	emitter.setState( AdditiveBlending );
 	emitter.setColorRamp(
 		[
 			1, 1, 1, 0.3,
@@ -478,14 +491,14 @@ function setupPoof( particleSystem ) {
 		},
 		function ( index, parameters ) {
 
-			var matrix = new THREE.Matrix4();
+			var matrix = new Matrix4();
 			var angle = Math.random() * 2 * Math.PI;
 			matrix.makeRotationY( angle );
-			var position = new THREE.Vector3( 3, 0, 0 );
+			var position = new Vector3( 3, 0, 0 );
 			var len = position.length();
 			position.transformDirection( matrix );
 			parameters.velocity = [ position.x * len, position.y * len, position.z * len ];
-			var acc = new THREE.Vector3( - 0.3, 0, - 0.3 ).multiply( position );
+			var acc = new Vector3( - 0.3, 0, - 0.3 ).multiply( position );
 			parameters.acceleration = [ acc.x, acc.y, acc.z ];
 
 		} );
@@ -532,7 +545,7 @@ function setupTrail( particleSystem ) {
 		1000,
 		g_trailParameters );
 
-	g_trail.setState( THREE.AdditiveBlending );
+	g_trail.setState( AdditiveBlending );
 
 	g_trail.setColorRamp(
 		[
@@ -578,7 +591,7 @@ function render() {
 	camera.position.x = Math.cos( - time ) * 15;
 
 	camera.position.y = 5;
-	camera.lookAt( new THREE.Vector3( 0, 1, 0 ) );
+	camera.lookAt( new Vector3( 0, 1, 0 ) );
 
 	if ( g_keyDown[ 84 ] ) {
 
