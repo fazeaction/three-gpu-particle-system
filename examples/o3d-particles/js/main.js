@@ -14,7 +14,8 @@ import {
 	Quaternion
 } from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
-import { ParticleSystem } from 'build/three-gpu-particle-system.module'
+// import { ParticleSystem } from './../../../build/three-gpu-particle-system.module'
+import { ParticleSystem } from 'three-gpu-particle-system'
 
 var container, stats;
 

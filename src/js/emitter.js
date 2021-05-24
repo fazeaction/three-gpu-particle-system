@@ -269,8 +269,7 @@ class ParticleEmitter extends Mesh {
 			this.particleBuffer_.setAttribute( 'orientation', new InterleavedBufferAttribute(this.interleavedBuffer, 4, Constants.ORIENTATION_IDX));
 			this.particleBuffer_.setAttribute( 'colorMult', new InterleavedBufferAttribute(this.interleavedBuffer, 4, Constants.COLOR_MULT_IDX));
 
-			//TODO Fix boundingSphere
-			this.particleBuffer_.boundingSphere = new Sphere();
+			this.particleBuffer_.computeBoundingSphere();
 
 			var uniforms = {
 
