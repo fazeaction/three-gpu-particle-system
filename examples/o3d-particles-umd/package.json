@@ -2,17 +2,12 @@
   "name": "o3d-particles",
   "version": "1.0.0",
   "description": "tribute to o3d particle system > https://www.khronos.org/registry/webgl/sdk/demos/google/particles/",
-  "main": "js/main.js",
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "servez -p 8080"
   },
   "author": "fazeaction",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^11.2.0",
-    "rollup": "^2.40.0",
-    "rollup-plugin-serve": "^1.1.0"
+    "servez": "^1.11.0"
   }
 }
