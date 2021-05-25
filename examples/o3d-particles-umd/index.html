@@ -40,7 +40,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/stats.min.js"></script>
-<script src="js/three-gpu-particle-system.js"></script>
+<script src="js/three-tdl-particle-system.min.js"></script>
 <script>
     var container, stats;
 
@@ -120,7 +120,7 @@
         light2.position.set( 0, - 1, 0 );
         scene.add( light2 );
 
-        particleSystem = new THREE_GPU_ParticleSystem.ParticleSystem( scene, camera );
+        particleSystem = new THREE_TDL_ParticleSystem.ParticleSystem( scene, camera );
         setupFlame( particleSystem );
         setupNaturalGasFlame( particleSystem );
         setupSmoke( particleSystem );

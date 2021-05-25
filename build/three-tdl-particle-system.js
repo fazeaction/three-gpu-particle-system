@@ -1,7 +1,7 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('three')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'three'], factory) :
-	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.THREE_GPU_ParticleSystem = {}, global.THREE));
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.THREE_TDL_ParticleSystem = {}, global.THREE));
 }(this, (function (exports, three) { 'use strict';
 
 	// source: https://github.com/greggman/tdl/blob/master/tdl/particles.js
@@ -280,9 +280,8 @@
 				this.particleBuffer_.setAttribute('accelerationEndSize', new three.InterleavedBufferAttribute(this.interleavedBuffer, 4, ACCELERATION_END_SIZE_IDX));
 				this.particleBuffer_.setAttribute('spinStartSpinSpeed', new three.InterleavedBufferAttribute(this.interleavedBuffer, 4, SPIN_START_SPIN_SPEED_IDX));
 				this.particleBuffer_.setAttribute('orientation', new three.InterleavedBufferAttribute(this.interleavedBuffer, 4, ORIENTATION_IDX));
-				this.particleBuffer_.setAttribute('colorMult', new three.InterleavedBufferAttribute(this.interleavedBuffer, 4, COLOR_MULT_IDX)); //TODO Fix boundingSphere
-
-				this.particleBuffer_.boundingSphere = new three.Sphere();
+				this.particleBuffer_.setAttribute('colorMult', new three.InterleavedBufferAttribute(this.interleavedBuffer, 4, COLOR_MULT_IDX));
+				this.particleBuffer_.computeBoundingSphere();
 				var uniforms = {
 					//world: { type: 'm4', value: this.matrixWorld },
 					viewInverse: {

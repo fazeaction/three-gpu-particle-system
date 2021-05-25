@@ -15,7 +15,7 @@ import {
 } from 'three'
 import Stats from 'three/examples/jsm/libs/stats.module'
 // import { ParticleSystem } from './../../../build/three-gpu-particle-system.module'
-import { ParticleSystem } from 'three-gpu-particle-system'
+import { ParticleSystem } from 'three.tdl.particle.system'
 
 var container, stats;
 

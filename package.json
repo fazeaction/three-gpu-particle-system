@@ -1,18 +1,18 @@
 {
-  "name": "three-gpu-particle-system",
-  "version": "1.0.0",
+  "name": "three.tdl.particle.system",
+  "version": "1.0.1",
   "description": "GPU based particle system for three.js. Heavily based on tdl library (https://github.com/greggman/tdl)",
-  "main": "build/three-gpu-particle-system.js",
-  "module": "build/three-gpu-particle-system.module.js",
+  "main": "build/three-tdl-particle-system.js",
+  "module": "build/three-tdl-particle-system.module.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/fazeaction/three-gpu-particle-system"
   },
   "sideEffects": false,
   "files": [
-    "build/three-gpu-particle-system.js",
-    "build/three-gpu-particle-system.min.js",
-    "build/three-gpu-particle-system.module.js",
+    "build/three-tdl-particle-system.js",
+    "build/three-tdl-particle-system.min.js",
+    "build/three-tdl-particle-system.module.js",
     "package.json",
     "README.md",
     "src"

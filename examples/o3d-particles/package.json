@@ -15,6 +15,6 @@
     "rollup": "^2.40.0",
     "rollup-plugin-serve": "^1.1.0",
     "three": "^0.128.0",
-    "three-gpu-particle-system": "git+https://github.com/fazeaction/three-gpu-particle-system.git"
+    "three.tdl.particle.system": "^1.0.0"
   }
 }

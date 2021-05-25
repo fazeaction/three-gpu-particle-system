@@ -11,7 +11,6 @@ import {
 	NormalBlending,
 	Vector3,
 	Vector4,
-	Sphere,
 	ShaderMaterial,
 	DoubleSide,
 	FrontSide,

@@ -1,5 +1,5 @@
 import babel from '@rollup/plugin-babel';
-// import { terser } from 'rollup-plugin-terser';
+import { terser } from 'rollup-plugin-terser';
 import nodeResolve from '@rollup/plugin-node-resolve';
 
 function glsl () {
@@ -70,9 +70,34 @@ export default [
         output: [
             {
                 format: 'umd',
-                name: 'THREE_GPU_ParticleSystem',
-                file: 'build/three-gpu-particle-system.js',
+                name: 'THREE_TDL_ParticleSystem',
+                file: 'build/three-tdl-particle-system.js',
                 indent: '\t',
+                globals:{
+                    three:'THREE'
+                }
+            }
+        ]
+    },
+    {
+        input: 'src/main.js',
+        plugins: [
+            nodeResolve(),
+            glsl(),
+            babel( {
+                babelHelpers: 'bundled',
+                babelrc: false,
+                ...babelrc
+            } ),
+            babelCleanup(),
+            terser()
+        ],
+        external: ['three'],
+        output: [
+            {
+                format: 'umd',
+                name: 'THREE_TDL_ParticleSystem',
+                file: 'build/three-tdl-particle-system.min.js',
                 globals:{
                     three:'THREE'
                 }
@@ -89,7 +114,7 @@ export default [
         output: [
             {
                 format: 'esm',
-                file: 'build/three-gpu-particle-system.module.js'
+                file: 'build/three-tdl-particle-system.module.js'
             }
         ]
     }
