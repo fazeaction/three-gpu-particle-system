@@ -1,6 +1,6 @@
 {
   "name": "three.tdl.particle.system",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "GPU based particle system for three.js. Heavily based on tdl library (https://github.com/greggman/tdl)",
   "main": "build/three-tdl-particle-system.js",
   "module": "build/three-tdl-particle-system.module.js",
