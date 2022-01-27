@@ -14,7 +14,7 @@
     "@rollup/plugin-node-resolve": "^11.2.0",
     "rollup": "^2.40.0",
     "rollup-plugin-serve": "^1.1.0",
-    "three": "^0.136.0",
+    "three": "^0.137.0",
     "three.tdl.particle.system": "^1.0.3"
   }
 }
